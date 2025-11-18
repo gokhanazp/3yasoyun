@@ -45,6 +45,7 @@ export const AnimalSoundsScreen: React.FC<AnimalSoundsScreenProps> = ({
   const [attempts, setAttempts] = useState(0);
   const [showFeedback, setShowFeedback] = useState<'correct' | 'wrong' | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [gameStarted, setGameStarted] = useState(false); // Oyun başladı mı? (Has game started?)
   const [animatedValues] = useState(
     ANIMALS.map(() => new Animated.Value(1))
   );
@@ -75,6 +76,7 @@ export const AnimalSoundsScreen: React.FC<AnimalSoundsScreenProps> = ({
     // Eğer oyun başlamamışsa, başlat (If game not started, start it)
     if (!targetAnimal) {
       console.log('🎮 Oyun başlatılıyor...');
+      setGameStarted(true); // Oyunu başlat (Start game)
       askNewQuestion();
       return;
     }
