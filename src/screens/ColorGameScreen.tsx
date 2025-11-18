@@ -18,6 +18,7 @@ import { RootStackParamList } from '../types/navigation';
 import { COLORS, LEARNING_COLORS } from '../constants/colors';
 import { GameButton } from '../components/GameButton';
 import { Confetti } from '../components/Confetti';
+import { BalloonSvg } from '../components/BalloonSvg';
 import { playColorSound, initializeAudio, speakTurkish, stopSpeaking } from '../utils/soundManager';
 
 const { width } = Dimensions.get('window');
@@ -328,21 +329,21 @@ export const ColorGameScreen: React.FC<ColorGameScreenProps> = ({ navigation }) 
                 onPress={() => handleColorPress(item, index)}
                 activeOpacity={0.8}
               >
-                {/* Balon şekli (Balloon shape) */}
-                <View style={[
-                  styles.balloonBody,
-                  { backgroundColor: item.color },
-                  item.name === 'Beyaz' && styles.whiteBalloon, // Beyaz balon için kenarlık
-                ]}>
+                {/* SVG Balon (SVG Balloon) */}
+                <BalloonSvg
+                  color={item.color}
+                  size={BALLOON_SIZE}
+                />
+
+                {/* Renk ismi (Color name) */}
+                <View style={styles.colorNameContainer}>
                   <Text style={[
                     styles.colorName,
-                    (item.name === 'Beyaz' || item.name === 'Sarı') && styles.darkText, // Beyaz ve sarı için koyu yazı
+                    (item.name === 'Beyaz' || item.name === 'Sarı') && styles.darkText,
                   ]}>
                     {item.name}
                   </Text>
                 </View>
-                {/* Balon ipi (Balloon string) */}
-                <View style={styles.balloonString} />
               </TouchableOpacity>
             </Animated.View>
           ))}
@@ -493,27 +494,15 @@ const styles = StyleSheet.create({
   colorBalloon: {
     margin: 5,
     alignItems: 'center',
+    position: 'relative',
   },
-  balloonBody: {
-    width: BALLOON_SIZE,
-    height: BALLOON_SIZE * 1.15, // Balon şekli için biraz uzun (Slightly taller for balloon shape)
-    borderRadius: BALLOON_SIZE / 2,
-    borderBottomLeftRadius: BALLOON_SIZE / 2.5,
-    borderBottomRightRadius: BALLOON_SIZE / 2.5,
-    justifyContent: 'center',
+  colorNameContainer: {
+    position: 'absolute',
+    top: '35%', // Balonun ortasında (In the middle of balloon)
+    left: 0,
+    right: 0,
     alignItems: 'center',
-    // Gölge efekti (Shadow effect)
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4.65,
-    elevation: 8,
-  },
-  balloonString: {
-    width: 2,
-    height: 20,
-    backgroundColor: '#999',
-    alignSelf: 'center',
+    justifyContent: 'center',
   },
   correctBalloon: {
     transform: [{ scale: 1.1 }],
@@ -525,17 +514,18 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: '#FFFFFF',
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
     textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 2,
-  },
-  whiteBalloon: {
-    borderWidth: 3,
-    borderColor: '#CCCCCC',
+    textShadowRadius: 3,
+    backgroundColor: 'rgba(0, 0, 0, 0.2)', // Hafif arka plan (Light background)
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 10,
   },
   darkText: {
     color: '#2C3E50',
-    textShadowColor: 'rgba(255, 255, 255, 0.5)',
+    textShadowColor: 'rgba(255, 255, 255, 0.8)',
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
   },
   bottomContainer: {
     padding: 20,
