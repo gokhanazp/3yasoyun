@@ -54,27 +54,61 @@ export const ColorGameScreen: React.FC<ColorGameScreenProps> = ({ navigation }) 
   }, []);
 
   // Türkçe dilbilgisi için yardımcı fonksiyon (Helper function for Turkish grammar)
+  // Belirtme hali eki (Accusative case suffix)
   const getAccusativeSuffix = (word: string): string => {
+    const lowerWord = word.toLowerCase();
+    const lastChar = lowerWord.slice(-1);
+
     // Ünlü harfler (Vowels)
     const backVowels = ['a', 'ı', 'o', 'u']; // Kalın ünlüler (Back vowels)
     const frontVowels = ['e', 'i', 'ö', 'ü']; // İnce ünlüler (Front vowels)
+    const allVowels = [...backVowels, ...frontVowels];
 
     // Kelimenin son ünlüsünü bul (Find last vowel in word)
     let lastVowel = '';
-    for (let i = word.length - 1; i >= 0; i--) {
-      const char = word[i].toLowerCase();
-      if ([...backVowels, ...frontVowels].includes(char)) {
+    for (let i = lowerWord.length - 1; i >= 0; i--) {
+      const char = lowerWord[i];
+      if (allVowels.includes(char)) {
         lastVowel = char;
         break;
       }
     }
 
-    // Büyük ünlü uyumu (Vowel harmony)
-    if (backVowels.includes(lastVowel)) {
-      return 'yı'; // Kalın ünlü (Back vowel)
+    // Kelime ünlü ile bitiyorsa (If word ends with vowel)
+    if (allVowels.includes(lastChar)) {
+      // Son harf hangi ünlü?
+      if (lastChar === 'ı') {
+        return 'yı'; // kırmızı → kırmızıyı, sarı → sarıyı
+      } else if (lastChar === 'i') {
+        return 'yi'; // mavi → maviyi, pembe değil
+      } else if (lastChar === 'u') {
+        return 'yu'; // turuncu → turuncuyu
+      } else if (lastChar === 'ü') {
+        return 'yü'; // örnek: gümüş → gümüşü
+      } else if (lastChar === 'a') {
+        return 'yı'; // örnek: masa → masayı
+      } else if (lastChar === 'e') {
+        return 'yi'; // pembe → pembeyi
+      } else if (lastChar === 'o') {
+        return 'yu'; // örnek: kilo → kiloyu
+      } else if (lastChar === 'ö') {
+        return 'yü'; // örnek: gök → gökyü
+      }
     } else {
-      return 'yi'; // İnce ünlü (Front vowel)
+      // Kelime ünsüz ile bitiyorsa (If word ends with consonant)
+      // Büyük ünlü uyumu (Vowel harmony)
+      if (lastVowel === 'o') {
+        return 'u'; // mor → moru (özel durum)
+      } else if (lastVowel === 'ö') {
+        return 'ü'; // örnek: göl → gölü
+      } else if (backVowels.includes(lastVowel)) {
+        return 'ı'; // beyaz → beyazı
+      } else {
+        return 'i'; // yeşil → yeşili
+      }
     }
+
+    return 'i'; // Varsayılan (Default)
   };
 
   // Yeni soru sor (Ask new question)
@@ -223,7 +257,11 @@ export const ColorGameScreen: React.FC<ColorGameScreenProps> = ({ navigation }) 
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => navigation.goBack()}
+            onPress={() => {
+              console.log('🔙 Going back - stopping speech');
+              stopSpeaking();
+              navigation.goBack();
+            }}
           >
             <Text style={styles.backButtonText}>← Geri</Text>
           </TouchableOpacity>
