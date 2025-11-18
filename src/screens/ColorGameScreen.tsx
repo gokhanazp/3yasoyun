@@ -1,7 +1,7 @@
 // Renk öğrenme oyunu ekranı (Color learning game screen)
 // Soru-cevap formatında renk öğrenme oyunu
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -44,6 +44,9 @@ export const ColorGameScreen: React.FC<ColorGameScreenProps> = ({ navigation }) 
     LEARNING_COLORS.map(() => new Animated.Value(1))
   );
 
+  // Aktif timeout'ları takip et (Track active timeouts)
+  const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
+
   // Ses sistemini başlat (Initialize audio system)
   useEffect(() => {
     initializeAudio();
@@ -56,7 +59,15 @@ export const ColorGameScreen: React.FC<ColorGameScreenProps> = ({ navigation }) 
 
       // Cleanup: Ekrandan çıkınca sesi durdur (Stop speech when leaving screen)
       return () => {
-        console.log('🧹 ColorGameScreen blur - stopping speech');
+        console.log('🧹 ColorGameScreen blur - stopping speech and clearing timeouts');
+
+        // Tüm timeout'ları iptal et (Cancel all timeouts)
+        timeoutsRef.current.forEach(timeout => {
+          clearTimeout(timeout);
+        });
+        timeoutsRef.current = [];
+
+        // Sesi durdur (Stop speech)
         stopSpeaking();
       };
     }, [])
@@ -130,10 +141,11 @@ export const ColorGameScreen: React.FC<ColorGameScreenProps> = ({ navigation }) 
     console.log('🎯 Asking question for:', randomColor.name);
 
     // Soruyu sor (Ask question)
-    setTimeout(() => {
+    const timeout = setTimeout(() => {
       const suffix = getAccusativeSuffix(randomColor.name);
       speakTurkish(`${randomColor.name}${suffix} bul`);
     }, 500);
+    timeoutsRef.current.push(timeout);
   };
 
   // Oyunu başlat (Start game)
@@ -181,14 +193,16 @@ export const ColorGameScreen: React.FC<ColorGameScreenProps> = ({ navigation }) 
       playColorSound(color.name); // Türkçe isim gönder
 
       // Aferin mesajı (Success message)
-      setTimeout(() => {
+      const timeout1 = setTimeout(() => {
         speakTurkish(`Aferin! Bu ${color.name}!`);
       }, 600);
+      timeoutsRef.current.push(timeout1);
 
       // Konfeti'yi gizle (Hide confetti)
-      setTimeout(() => {
+      const timeout2 = setTimeout(() => {
         setShowConfetti(false);
       }, 3000);
+      timeoutsRef.current.push(timeout2);
 
       // Büyüme animasyonu (Scale up animation)
       Animated.sequence([
@@ -205,9 +219,10 @@ export const ColorGameScreen: React.FC<ColorGameScreenProps> = ({ navigation }) 
       ]).start();
 
       // Yeni soru sor (Ask new question)
-      setTimeout(() => {
+      const timeout3 = setTimeout(() => {
         askNewQuestion();
       }, 3000);
+      timeoutsRef.current.push(timeout3);
     } else {
       // YANLIŞ CEVAP! (WRONG ANSWER!)
       console.log('❌ Yanlış cevap!');
@@ -215,9 +230,10 @@ export const ColorGameScreen: React.FC<ColorGameScreenProps> = ({ navigation }) 
       setAttempts(attempts + 1);
 
       // Tekrar dene mesajı (Try again message)
-      setTimeout(() => {
+      const timeout4 = setTimeout(() => {
         speakTurkish('Tekrar dene!');
       }, 300);
+      timeoutsRef.current.push(timeout4);
 
       // Sallama animasyonu (Shake animation)
       Animated.sequence([
@@ -234,9 +250,10 @@ export const ColorGameScreen: React.FC<ColorGameScreenProps> = ({ navigation }) 
       ]).start();
 
       // Feedback'i temizle (Clear feedback)
-      setTimeout(() => {
+      const timeout5 = setTimeout(() => {
         setShowFeedback(null);
       }, 1500);
+      timeoutsRef.current.push(timeout5);
     }
   };
 

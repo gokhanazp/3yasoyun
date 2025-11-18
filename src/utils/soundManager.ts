@@ -454,6 +454,9 @@ export const playClickSound = () => {
 let speechQueue: string[] = [];
 let isSpeakingNow = false;
 
+// Aktif timeout'ları takip et (Track active timeouts)
+let activeTimeouts: NodeJS.Timeout[] = [];
+
 // Türkçe sesli okuma (Turkish text-to-speech)
 // Kuyruk sistemi ile çalışır
 // Web'de Web Speech API, mobilde expo-speech kullanır
@@ -610,22 +613,32 @@ export const speakSuccess = () => {
 export const stopSpeaking = () => {
   try {
     console.log('🛑 Stopping speech...');
+    console.log('📊 Queue length:', speechQueue.length);
+    console.log('⏰ Active timeouts:', activeTimeouts.length);
 
     // Kuyruğu temizle (Clear queue)
     speechQueue.length = 0;
     isSpeakingNow = false;
 
+    // Tüm aktif timeout'ları iptal et (Cancel all active timeouts)
+    activeTimeouts.forEach(timeout => {
+      clearTimeout(timeout);
+    });
+    activeTimeouts.length = 0;
+
     // Platform'a göre durdur (Stop based on platform)
     if (Platform.OS === 'web') {
       if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
         window.speechSynthesis.cancel();
+        console.log('🌐 Web speech cancelled');
       }
     } else {
       // Mobil için expo-speech
       Speech.stop();
+      console.log('📱 Mobile speech stopped');
     }
 
-    console.log('✅ Speech stopped');
+    console.log('✅ Speech stopped successfully');
   } catch (error) {
     console.log('❌ Stop speech error:', error);
   }
