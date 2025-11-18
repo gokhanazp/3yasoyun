@@ -52,14 +52,6 @@ export const GAMES: GameItem[] = [
     color: COLORS.pink,
     screen: 'BalloonPop',
   },
-  {
-    id: '7',
-    title: 'Yapboz',
-    description: 'Parçaları birleştir!',
-    icon: '🧩',
-    color: COLORS.orange,
-    screen: 'PuzzleGame',
-  },
 ];
 
 // Hayvan verileri (Animal data)
