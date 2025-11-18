@@ -16,6 +16,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
 import { LEARNING_COLORS } from '../constants/colors';
 import { speakTurkish } from '../utils/soundManager';
+import Svg, { G, Path, Ellipse } from 'react-native-svg';
 
 const { width, height } = Dimensions.get('window');
 
@@ -30,6 +31,7 @@ interface ColoringScreenProps {
 
 // Boyama şablonları (Coloring templates)
 const TEMPLATES = [
+  { id: 'rabbit', name: 'Tavşan', emoji: '🐰', parts: 10 },
   { id: 'rainbow', name: 'Gökkuşağı', emoji: '🌈', parts: 7 },
   { id: 'sun', name: 'Güneş', emoji: '☀️', parts: 1 },
   { id: 'flower', name: 'Çiçek', emoji: '🌸', parts: 5 },
@@ -122,6 +124,9 @@ export const ColoringScreen: React.FC<ColoringScreenProps> = ({ navigation }) =>
           </ScrollView>
         ) : (
           <View style={styles.coloringArea}>
+            {selectedTemplate === 'rabbit' && (
+              <RabbitTemplate coloredParts={coloredParts} onPartPress={handlePartPress} />
+            )}
             {selectedTemplate === 'rainbow' && (
               <RainbowTemplate coloredParts={coloredParts} onPartPress={handlePartPress} />
             )}
@@ -308,6 +313,139 @@ interface TemplateProps {
   coloredParts: { [key: string]: string };
   onPartPress: (partId: string) => void;
 }
+
+// Tavşan şablonu (Rabbit template)
+const RabbitTemplate: React.FC<TemplateProps> = ({ coloredParts, onPartPress }) => {
+  return (
+    <View style={templateStyles.rabbitContainer}>
+      <Svg width="300" height="400" viewBox="0 0 500 500">
+        {/* Gövde (Body) */}
+        <TouchableOpacity activeOpacity={1} onPress={() => onPartPress('body')} onLongPress={() => onPartPress('body')} onPressIn={() => onPartPress('body')}>
+          <Path
+            d="M270.067,409.577c41.724-4.832,33.425-40.804,17.901-73.821c-0.238-0.506-0.351-1.058-0.33-1.616 c0.689-18.722-1.152-38.658-3.958-55.407c-12.036-0.59-26.952-1.879-45.361-6.017c-14.104,16.617-28.205,33.24-42.097,50.389 c-18.813,13.318-40.38,29.124-24.535,64.668l23.967,19.94c2.767-6.835,7.546-15.418,12.942-20.55 c7.564-7.193,14.634-8.772,23.002-9.826c4.344,4.177,7.753,8.89,11.601,17.342"
+            fill={coloredParts['body'] || '#FFFFFF'}
+            stroke="#000000"
+            strokeWidth="2"
+          />
+        </TouchableOpacity>
+
+        {/* Kafa (Head) */}
+        <TouchableOpacity activeOpacity={1} onPress={() => onPartPress('head')} onLongPress={() => onPartPress('head')} onPressIn={() => onPartPress('head')}>
+          <Path
+            d="M331.93,252.796c1.908,33.464-31.872,41.215-74.852,33.282c-41.287-7.621-69.207-26.906-59.484-55.653 c6.857-20.275,39.969-75.196,82.083-67.423C322.655,170.933,330.99,236.304,331.93,252.796z"
+            fill={coloredParts['head'] || '#FFFFFF'}
+            stroke="#000000"
+            strokeWidth="2"
+          />
+        </TouchableOpacity>
+
+        {/* Sol kulak (Left ear) */}
+        <TouchableOpacity activeOpacity={1} onPress={() => onPartPress('leftEar')} onLongPress={() => onPartPress('leftEar')} onPressIn={() => onPartPress('leftEar')}>
+          <Path
+            d="M264.151,163.616c-6.07-48.696-13.618-82.382-49.176-111.48c-4.994-8.909-9.828-13.397-13.197-12.83 c-5.093,0.856-5.609,7.363-5.889,11.937c-2.546,41.685,11.951,100.025,40.702,127.027"
+            fill={coloredParts['leftEar'] || '#FFFFFF'}
+            stroke="#000000"
+            strokeWidth="2"
+          />
+        </TouchableOpacity>
+
+        {/* Sağ kulak (Right ear) */}
+        <TouchableOpacity activeOpacity={1} onPress={() => onPartPress('rightEar')} onLongPress={() => onPartPress('rightEar')} onPressIn={() => onPartPress('rightEar')}>
+          <Path
+            d="M282.513,167.573c5.567-48.756,12.767-82.518,48.023-111.981c4.901-8.96,9.689-13.497,13.064-12.966 c5.101,0.804,5.685,7.305,6.012,11.875c2.977,41.656-14.125,101.2-42.595,128.497"
+            fill={coloredParts['rightEar'] || '#FFFFFF'}
+            stroke="#000000"
+            strokeWidth="2"
+          />
+        </TouchableOpacity>
+
+        {/* Sol ayak (Left foot) */}
+        <TouchableOpacity activeOpacity={1} onPress={() => onPartPress('leftFoot')} onLongPress={() => onPartPress('leftFoot')} onPressIn={() => onPartPress('leftFoot')}>
+          <Path
+            d="M126.53,424.166c1.439-8.196,3.113-28.331-5.495-37.066c-6.49-6.586-33.753-0.995-37.204,9.883 c-1.688,5.321,3.359,23.063,9.973,31.997C105.395,430.026,113.787,427.343,126.53,424.166z"
+            fill={coloredParts['leftFoot'] || '#FFFFFF'}
+            stroke="#000000"
+            strokeWidth="2"
+          />
+        </TouchableOpacity>
+
+        {/* Sağ ayak (Right foot) */}
+        <TouchableOpacity activeOpacity={1} onPress={() => onPartPress('rightFoot')} onLongPress={() => onPartPress('rightFoot')} onPressIn={() => onPartPress('rightFoot')}>
+          <Path
+            d="M343.561,421.674c-0.464-9.451,0.23-32.393,9.723-40.959c7.157-6.459,33.356,3.888,35.489,16.661 c1.043,6.247-4.749,21.338-12.302,30.425C364.935,427.259,355.742,427.146,343.561,421.674z"
+            fill={coloredParts['rightFoot'] || '#FFFFFF'}
+            stroke="#000000"
+            strokeWidth="2"
+          />
+        </TouchableOpacity>
+
+        {/* Sol el (Left hand) */}
+        <TouchableOpacity activeOpacity={1} onPress={() => onPartPress('leftHand')} onLongPress={() => onPartPress('leftHand')} onPressIn={() => onPartPress('leftHand')}>
+          <Path
+            d="M184.074,281.842c-17.617-16.694,18.001-44.101,32.754-30.979c20.759,18.463,43.038,95.586,31.328,99.56 C238.297,353.769,209.284,305.733,184.074,281.842z"
+            fill={coloredParts['leftHand'] || '#FFFFFF'}
+            stroke="#000000"
+            strokeWidth="2"
+          />
+        </TouchableOpacity>
+
+        {/* Sağ el (Right hand) */}
+        <TouchableOpacity activeOpacity={1} onPress={() => onPartPress('rightHand')} onLongPress={() => onPartPress('rightHand')} onPressIn={() => onPartPress('rightHand')}>
+          <Path
+            d="M276.149,284.165c24.046-1.644,50.833-11.055,76.394-21.693c12.353-5.142,17.971,10.784,9.024,22.436 c-22.354,29.111-64.513,40.183-86.988,45.924C274.689,318.067,274.798,298.748,276.149,284.165z"
+            fill={coloredParts['rightHand'] || '#FFFFFF'}
+            stroke="#000000"
+            strokeWidth="2"
+          />
+        </TouchableOpacity>
+
+        {/* Burun (Nose) */}
+        <TouchableOpacity activeOpacity={1} onPress={() => onPartPress('nose')} onLongPress={() => onPartPress('nose')} onPressIn={() => onPartPress('nose')}>
+          <Path
+            d="M255.21,235.961c0.6-3.252,5.437-5.085,10.802-4.095c5.366,0.99,9.229,4.429,8.629,7.681 c-0.6,3.252-10.802,4.095-10.802,4.095S254.61,239.213,255.21,235.961z"
+            fill={coloredParts['nose'] || '#FFFFFF'}
+            stroke="#000000"
+            strokeWidth="2"
+          />
+        </TouchableOpacity>
+
+        {/* Kuyruk (Tail) */}
+        <TouchableOpacity activeOpacity={1} onPress={() => onPartPress('tail')} onLongPress={() => onPartPress('tail')} onPressIn={() => onPartPress('tail')}>
+          <Path
+            d="M187.725,326.509c-12.829-2.399-22.501-21.037-11.857-32.345c9.343-9.926,35.83-12.578,41.119-1.812 C222.122,302.804,201.704,329.123,187.725,326.509z"
+            fill={coloredParts['tail'] || '#FFFFFF'}
+            stroke="#000000"
+            strokeWidth="2"
+          />
+        </TouchableOpacity>
+
+        {/* Sol göz (Left eye) - siyah */}
+        <Path
+          d="M218.19,232.573c-0.503-7.014,3.855-13.043,9.736-13.465c5.881-0.422,11.056,4.922,11.56,11.936 c0.504,7.014-3.855,13.043-9.736,13.465C223.869,244.932,218.693,239.588,218.19,232.573z"
+          fill="#000000"
+        />
+        <Path
+          d="M221.867,228.464c0.653-3.129,2.986-5.289,5.211-4.825c2.225,0.464,3.5,3.377,2.847,6.507 s-2.986,5.289-5.211,4.825C222.488,234.506,221.214,231.593,221.867,228.464z"
+          fill="#FFFFFF"
+        />
+
+        {/* Sağ göz (Right eye) - siyah */}
+        <Ellipse
+          transform="matrix(0.3848 -0.923 0.923 0.3848 -40.2374 430.5812)"
+          cx="302.872"
+          cy="245.474"
+          rx="12.733"
+          ry="10.675"
+          fill="#000000"
+        />
+        <Path
+          d="M298.151,239.35c1.991-2.501,5.046-3.38,6.825-1.965c1.778,1.416,1.606,4.591-0.385,7.092 c-1.991,2.501-5.047,3.381-6.825,1.965C295.988,245.026,296.16,241.851,298.151,239.35z"
+          fill="#FFFFFF"
+        />
+      </Svg>
+    </View>
+  );
+};
 
 // Gökkuşağı şablonu (Rainbow template)
 const RainbowTemplate: React.FC<TemplateProps> = ({ coloredParts, onPartPress }) => {
@@ -545,6 +683,13 @@ const ButterflyTemplate: React.FC<TemplateProps> = ({ coloredParts, onPartPress 
 
 // Şablon stilleri (Template styles)
 const templateStyles = StyleSheet.create({
+  // Tavşan (Rabbit)
+  rabbitContainer: {
+    width: 300,
+    height: 400,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   // Gökkuşağı (Rainbow)
   rainbowContainer: {
     width: 300,
