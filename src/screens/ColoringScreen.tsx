@@ -1,7 +1,7 @@
 // Boyama oyunu ekranı (Coloring game screen)
 // Çocuklar için basit boyama oyunu
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,8 @@ import {
   TouchableOpacity,
   ScrollView,
   Dimensions,
+  PanResponder,
+  GestureResponderEvent,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -317,31 +319,48 @@ const RainbowTemplate: React.FC<TemplateProps> = ({ coloredParts, onPartPress })
     { id: 'arc7', color: coloredParts['arc7'] || '#FFFFFF', top: 230, width: 120, height: 60 },
   ];
 
+  // Her bölge için ayrı PanResponder (Separate PanResponder for each part)
+  const createPanResponder = (partId: string) => {
+    return useRef(
+      PanResponder.create({
+        onStartShouldSetPanResponder: () => true,
+        onMoveShouldSetPanResponder: () => true,
+        onPanResponderGrant: () => {
+          // Dokunma başladı (Touch started)
+          onPartPress(partId);
+        },
+        onPanResponderMove: () => {
+          // Parmak hareket ediyor (Finger moving)
+          onPartPress(partId);
+        },
+      })
+    ).current;
+  };
+
   return (
     <View style={templateStyles.rainbowContainer}>
-      {rainbowParts.map((part, index) => (
-        <View
-          key={part.id}
-          style={[
-            templateStyles.rainbowArc,
-            {
-              backgroundColor: part.color,
-              width: part.width,
-              height: part.height,
-              top: part.top,
-            },
-          ]}
-          onStartShouldSetResponder={() => true}
-          onResponderGrant={() => onPartPress(part.id)}
-          onResponderMove={() => onPartPress(part.id)}
-        />
-      ))}
+      {rainbowParts.map((part, index) => {
+        const panResponder = createPanResponder(part.id);
+        return (
+          <View
+            key={part.id}
+            style={[
+              templateStyles.rainbowArc,
+              {
+                backgroundColor: part.color,
+                width: part.width,
+                height: part.height,
+                top: part.top,
+              },
+            ]}
+            {...panResponder.panHandlers}
+          />
+        );
+      })}
       {/* Bulutlar (Clouds) */}
       <View
         style={[templateStyles.cloud, { left: 20, bottom: 20 }]}
-        onStartShouldSetResponder={() => true}
-        onResponderGrant={() => onPartPress('cloud1')}
-        onResponderMove={() => onPartPress('cloud1')}
+        {...createPanResponder('cloud1').panHandlers}
       >
         <View
           style={[templateStyles.cloudPart, { backgroundColor: coloredParts['cloud1'] || '#FFFFFF' }]}
@@ -349,9 +368,7 @@ const RainbowTemplate: React.FC<TemplateProps> = ({ coloredParts, onPartPress })
       </View>
       <View
         style={[templateStyles.cloud, { right: 20, bottom: 20 }]}
-        onStartShouldSetResponder={() => true}
-        onResponderGrant={() => onPartPress('cloud2')}
-        onResponderMove={() => onPartPress('cloud2')}
+        {...createPanResponder('cloud2').panHandlers}
       >
         <View
           style={[templateStyles.cloudPart, { backgroundColor: coloredParts['cloud2'] || '#FFFFFF' }]}
@@ -363,13 +380,24 @@ const RainbowTemplate: React.FC<TemplateProps> = ({ coloredParts, onPartPress })
 
 // Güneş şablonu (Sun template)
 const SunTemplate: React.FC<TemplateProps> = ({ coloredParts, onPartPress }) => {
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: () => true,
+      onPanResponderGrant: () => {
+        onPartPress('sun');
+      },
+      onPanResponderMove: () => {
+        onPartPress('sun');
+      },
+    })
+  ).current;
+
   return (
     <View style={templateStyles.sunContainer}>
       <View
         style={[templateStyles.sunCircle, { backgroundColor: coloredParts['sun'] || '#FFFFFF' }]}
-        onStartShouldSetResponder={() => true}
-        onResponderGrant={() => onPartPress('sun')}
-        onResponderMove={() => onPartPress('sun')}
+        {...panResponder.panHandlers}
       />
       {[...Array(12)].map((_, i) => (
         <View
@@ -398,34 +426,46 @@ const FlowerTemplate: React.FC<TemplateProps> = ({ coloredParts, onPartPress }) 
     { top: 80, left: 60 },
   ];
 
+  const createPanResponder = (partId: string) => {
+    return useRef(
+      PanResponder.create({
+        onStartShouldSetPanResponder: () => true,
+        onMoveShouldSetPanResponder: () => true,
+        onPanResponderGrant: () => {
+          onPartPress(partId);
+        },
+        onPanResponderMove: () => {
+          onPartPress(partId);
+        },
+      })
+    ).current;
+  };
+
   return (
     <View style={templateStyles.flowerContainer}>
       {/* Yapraklar (Petals) */}
-      {petalPositions.map((pos, i) => (
-        <View
-          key={`petal${i}`}
-          style={[
-            templateStyles.petal,
-            { top: pos.top, left: pos.left, backgroundColor: coloredParts[`petal${i}`] || '#FFFFFF' },
-          ]}
-          onStartShouldSetResponder={() => true}
-          onResponderGrant={() => onPartPress(`petal${i}`)}
-          onResponderMove={() => onPartPress(`petal${i}`)}
-        />
-      ))}
+      {petalPositions.map((pos, i) => {
+        const panResponder = createPanResponder(`petal${i}`);
+        return (
+          <View
+            key={`petal${i}`}
+            style={[
+              templateStyles.petal,
+              { top: pos.top, left: pos.left, backgroundColor: coloredParts[`petal${i}`] || '#FFFFFF' },
+            ]}
+            {...panResponder.panHandlers}
+          />
+        );
+      })}
       {/* Merkez (Center) */}
       <View
         style={[templateStyles.flowerCenter, { backgroundColor: coloredParts['center'] || '#FFFFFF' }]}
-        onStartShouldSetResponder={() => true}
-        onResponderGrant={() => onPartPress('center')}
-        onResponderMove={() => onPartPress('center')}
+        {...createPanResponder('center').panHandlers}
       />
       {/* Gövde (Stem) */}
       <View
         style={[templateStyles.stem, { backgroundColor: coloredParts['stem'] || '#FFFFFF' }]}
-        onStartShouldSetResponder={() => true}
-        onResponderGrant={() => onPartPress('stem')}
-        onResponderMove={() => onPartPress('stem')}
+        {...createPanResponder('stem').panHandlers}
       />
     </View>
   );
@@ -433,13 +473,24 @@ const FlowerTemplate: React.FC<TemplateProps> = ({ coloredParts, onPartPress }) 
 
 // Kalp şablonu (Heart template)
 const HeartTemplate: React.FC<TemplateProps> = ({ coloredParts, onPartPress }) => {
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: () => true,
+      onPanResponderGrant: () => {
+        onPartPress('heart');
+      },
+      onPanResponderMove: () => {
+        onPartPress('heart');
+      },
+    })
+  ).current;
+
   return (
     <View style={templateStyles.heartContainer}>
       <View
         style={[templateStyles.heart, { backgroundColor: coloredParts['heart'] || '#FFFFFF' }]}
-        onStartShouldSetResponder={() => true}
-        onResponderGrant={() => onPartPress('heart')}
-        onResponderMove={() => onPartPress('heart')}
+        {...panResponder.panHandlers}
       >
         <Text style={templateStyles.heartText}>❤️</Text>
       </View>
@@ -449,13 +500,24 @@ const HeartTemplate: React.FC<TemplateProps> = ({ coloredParts, onPartPress }) =
 
 // Yıldız şablonu (Star template)
 const StarTemplate: React.FC<TemplateProps> = ({ coloredParts, onPartPress }) => {
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: () => true,
+      onPanResponderGrant: () => {
+        onPartPress('star');
+      },
+      onPanResponderMove: () => {
+        onPartPress('star');
+      },
+    })
+  ).current;
+
   return (
     <View style={templateStyles.starContainer}>
       <View
         style={[templateStyles.star, { backgroundColor: coloredParts['star'] || '#FFFFFF' }]}
-        onStartShouldSetResponder={() => true}
-        onResponderGrant={() => onPartPress('star')}
-        onResponderMove={() => onPartPress('star')}
+        {...panResponder.panHandlers}
       >
         <Text style={templateStyles.starText}>⭐</Text>
       </View>
@@ -465,6 +527,21 @@ const StarTemplate: React.FC<TemplateProps> = ({ coloredParts, onPartPress }) =>
 
 // Kelebek şablonu (Butterfly template)
 const ButterflyTemplate: React.FC<TemplateProps> = ({ coloredParts, onPartPress }) => {
+  const createPanResponder = (partId: string) => {
+    return useRef(
+      PanResponder.create({
+        onStartShouldSetPanResponder: () => true,
+        onMoveShouldSetPanResponder: () => true,
+        onPanResponderGrant: () => {
+          onPartPress(partId);
+        },
+        onPanResponderMove: () => {
+          onPartPress(partId);
+        },
+      })
+    ).current;
+  };
+
   return (
     <View style={templateStyles.butterflyContainer}>
       {/* Sol üst kanat (Left top wing) */}
@@ -474,9 +551,7 @@ const ButterflyTemplate: React.FC<TemplateProps> = ({ coloredParts, onPartPress 
           templateStyles.leftTopWing,
           { backgroundColor: coloredParts['leftTop'] || '#FFFFFF' },
         ]}
-        onStartShouldSetResponder={() => true}
-        onResponderGrant={() => onPartPress('leftTop')}
-        onResponderMove={() => onPartPress('leftTop')}
+        {...createPanResponder('leftTop').panHandlers}
       />
       {/* Sağ üst kanat (Right top wing) */}
       <View
@@ -485,9 +560,7 @@ const ButterflyTemplate: React.FC<TemplateProps> = ({ coloredParts, onPartPress 
           templateStyles.rightTopWing,
           { backgroundColor: coloredParts['rightTop'] || '#FFFFFF' },
         ]}
-        onStartShouldSetResponder={() => true}
-        onResponderGrant={() => onPartPress('rightTop')}
-        onResponderMove={() => onPartPress('rightTop')}
+        {...createPanResponder('rightTop').panHandlers}
       />
       {/* Sol alt kanat (Left bottom wing) */}
       <View
@@ -496,9 +569,7 @@ const ButterflyTemplate: React.FC<TemplateProps> = ({ coloredParts, onPartPress 
           templateStyles.leftBottomWing,
           { backgroundColor: coloredParts['leftBottom'] || '#FFFFFF' },
         ]}
-        onStartShouldSetResponder={() => true}
-        onResponderGrant={() => onPartPress('leftBottom')}
-        onResponderMove={() => onPartPress('leftBottom')}
+        {...createPanResponder('leftBottom').panHandlers}
       />
       {/* Sağ alt kanat (Right bottom wing) */}
       <View
@@ -507,9 +578,7 @@ const ButterflyTemplate: React.FC<TemplateProps> = ({ coloredParts, onPartPress 
           templateStyles.rightBottomWing,
           { backgroundColor: coloredParts['rightBottom'] || '#FFFFFF' },
         ]}
-        onStartShouldSetResponder={() => true}
-        onResponderGrant={() => onPartPress('rightBottom')}
-        onResponderMove={() => onPartPress('rightBottom')}
+        {...createPanResponder('rightBottom').panHandlers}
       />
       {/* Gövde (Body) */}
       <View style={templateStyles.butterflyBody} />
