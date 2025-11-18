@@ -45,7 +45,6 @@ export const AnimalSoundsScreen: React.FC<AnimalSoundsScreenProps> = ({
   const [attempts, setAttempts] = useState(0);
   const [showFeedback, setShowFeedback] = useState<'correct' | 'wrong' | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
-  const [gameStarted, setGameStarted] = useState(false); // Oyun başladı mı? (Has game started?)
   const [animatedValues] = useState(
     ANIMALS.map(() => new Animated.Value(1))
   );
@@ -76,7 +75,6 @@ export const AnimalSoundsScreen: React.FC<AnimalSoundsScreenProps> = ({
     // Eğer oyun başlamamışsa, başlat (If game not started, start it)
     if (!targetAnimal) {
       console.log('🎮 Oyun başlatılıyor...');
-      setGameStarted(true); // Oyunu başlat (Start game)
       askNewQuestion();
       return;
     }
@@ -234,13 +232,28 @@ export const AnimalSoundsScreen: React.FC<AnimalSoundsScreenProps> = ({
             <Text style={styles.titleEmoji}>🐶</Text>
             <Text style={styles.titleText}>Hayvan Sesleri</Text>
           </View>
+        </View>
 
-          {/* Skor ve Speaker (Score and Speaker) */}
-          {gameStarted && (
-            <View style={styles.scoreContainer}>
-              <Text style={styles.scoreText}>{score}</Text>
-            </View>
-          )}
+        {/* Skor gösterimi (Score display) */}
+        <View style={styles.scoreContainer}>
+          <Text style={styles.scoreText}>
+            Skor: {score} / {attempts}
+          </Text>
+
+          <TouchableOpacity
+            style={styles.speakerButton}
+            onPress={() => {
+              console.log('🔊 Speaker button pressed');
+              if (targetAnimal) {
+                console.log('🎯 Repeating question for:', targetAnimal.name);
+                askAnimalQuestion(targetAnimal.name);
+              } else {
+                console.log('⚠️ No target animal set');
+              }
+            }}
+          >
+            <Text style={styles.speakerIcon}>🔊</Text>
+          </TouchableOpacity>
         </View>
 
       {/* Soru gösterimi (Question display) */}
@@ -362,25 +375,22 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between', // Geri solda, başlık sağda (Back left, title right)
     paddingHorizontal: 20,
     paddingVertical: 15,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)', // Beyaz arka plan (White background)
-    borderBottomWidth: 2,
-    borderBottomColor: COLORS.border,
   },
   backButton: {
-    padding: 8,
+    padding: 10,
   },
   backButtonText: {
-    fontSize: 18,
-    color: COLORS.primary,
-    fontWeight: '600',
+    fontSize: 20,
+    color: COLORS.green,
+    fontWeight: 'bold',
   },
   titleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+    marginLeft: 10,
   },
   titleEmoji: {
     fontSize: 32,
@@ -391,15 +401,27 @@ const styles = StyleSheet.create({
     color: COLORS.text,
   },
   scoreContainer: {
-    backgroundColor: COLORS.green, // Yeşil arka plan (Green background)
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 15,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    marginHorizontal: 20,
+    marginTop: 10,
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+    borderWidth: 3,
+    borderColor: '#FFD700',
   },
   scoreText: {
-    fontSize: 16,
+    fontSize: 24,
     fontWeight: 'bold',
-    color: '#FFFFFF', // Beyaz yazı (White text)
+    color: COLORS.text,
   },
   speakerButton: {
     padding: 10,

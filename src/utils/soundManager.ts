@@ -580,14 +580,14 @@ export const speakAnimalName = (animalName: string) => {
 export const askAnimalQuestion = (animalName: string) => {
   // Belirtme hali ekleri - Doğru telaffuz için (Accusative case suffixes - for correct pronunciation)
   const questionMap: { [key: string]: string } = {
-    'Köpek': 'Köpeği bul',
-    'Kedi': 'Kediyi bul',
-    'İnek': 'İneği bul',
-    'Koyun': 'Koyunu bul',
-    'Kuş': 'Kuşu bul',
-    'Aslan': 'Aslanı bul',
-    'Fil': 'Fili bul',
-    'Kurbağa': 'Kurbağayı bul',
+    'Köpek': 'Köpeği bul',    // Köpek → Köpeği (ğ → ği)
+    'Kedi': 'Kediyi bul',     // Kedi → Kediyi (i → yi)
+    'İnek': 'İneği bul',      // İnek → İneği (k → ği)
+    'Koyun': 'Koyunu bul',    // Koyun → Koyunu (n → nu)
+    'Kuş': 'Kuşu bul',        // Kuş → Kuşu (ş → şu)
+    'Aslan': 'Aslanı bul',    // Aslan → Aslanı (n → nı)
+    'Fil': 'Fili bul',        // Fil → Fili (l → li)
+    'Kurbağa': 'Kurbağayı bul', // Kurbağa → Kurbağayı (a → yı)
   };
 
   const question = questionMap[animalName] || `${animalName} bul`;
