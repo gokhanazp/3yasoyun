@@ -37,6 +37,22 @@ interface AnimalSoundsScreenProps {
   navigation: AnimalSoundsScreenNavigationProp;
 }
 
+// Türkçe belirtme hali (accusative case) ekleri (Turkish accusative case suffixes)
+const getAnimalAccusative = (animalName: string): string => {
+  const accusativeMap: { [key: string]: string } = {
+    'Köpek': 'Köpeği',    // Köpek → Köpeği (ğ → ği)
+    'Kedi': 'Kediyi',     // Kedi → Kediyi (i → yi)
+    'İnek': 'İneği',      // İnek → İneği (k → ği)
+    'Koyun': 'Koyunu',    // Koyun → Koyunu (n → nu)
+    'Kuş': 'Kuşu',        // Kuş → Kuşu (ş → şu)
+    'Aslan': 'Aslanı',    // Aslan → Aslanı (n → nı)
+    'Fil': 'Fili',        // Fil → Fili (l → li)
+    'Kurbağa': 'Kurbağayı', // Kurbağa → Kurbağayı (a → yı)
+  };
+
+  return accusativeMap[animalName] || animalName;
+};
+
 export const AnimalSoundsScreen: React.FC<AnimalSoundsScreenProps> = ({
   navigation,
 }) => {
@@ -260,7 +276,7 @@ export const AnimalSoundsScreen: React.FC<AnimalSoundsScreenProps> = ({
       {targetAnimal ? (
         <View style={styles.questionContainer}>
           <Text style={styles.questionText}>
-            {targetAnimal.name}i bul! 🎯
+            {getAnimalAccusative(targetAnimal.name)} bul! 🎯
           </Text>
         </View>
       ) : (
