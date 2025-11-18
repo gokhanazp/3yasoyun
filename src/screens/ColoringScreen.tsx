@@ -311,58 +311,67 @@ interface TemplateProps {
 
 // Gökkuşağı şablonu (Rainbow template)
 const RainbowTemplate: React.FC<TemplateProps> = ({ coloredParts, onPartPress }) => {
-  const rainbowParts = [
-    { id: 'arc1', color: coloredParts['arc1'] || '#FFFFFF', top: 50, width: 300, height: 150 },
-    { id: 'arc2', color: coloredParts['arc2'] || '#FFFFFF', top: 80, width: 270, height: 135 },
-    { id: 'arc3', color: coloredParts['arc3'] || '#FFFFFF', top: 110, width: 240, height: 120 },
-    { id: 'arc4', color: coloredParts['arc4'] || '#FFFFFF', top: 140, width: 210, height: 105 },
-    { id: 'arc5', color: coloredParts['arc5'] || '#FFFFFF', top: 170, width: 180, height: 90 },
-    { id: 'arc6', color: coloredParts['arc6'] || '#FFFFFF', top: 200, width: 150, height: 75 },
-    { id: 'arc7', color: coloredParts['arc7'] || '#FFFFFF', top: 230, width: 120, height: 60 },
+  // Gökkuşağı yayları - yarım daire şeklinde (Rainbow arcs - semicircle shape)
+  const rainbowArcs = [
+    { id: 'arc1', color: coloredParts['arc1'] || '#FFFFFF', size: 280 }, // En dış (Outermost)
+    { id: 'arc2', color: coloredParts['arc2'] || '#FFFFFF', size: 240 },
+    { id: 'arc3', color: coloredParts['arc3'] || '#FFFFFF', size: 200 },
+    { id: 'arc4', color: coloredParts['arc4'] || '#FFFFFF', size: 160 },
+    { id: 'arc5', color: coloredParts['arc5'] || '#FFFFFF', size: 120 },
+    { id: 'arc6', color: coloredParts['arc6'] || '#FFFFFF', size: 80 },
+    { id: 'arc7', color: coloredParts['arc7'] || '#FFFFFF', size: 40 }, // En iç (Innermost)
   ];
 
   return (
     <View style={templateStyles.rainbowContainer}>
-      {rainbowParts.map((part, index) => (
+      {/* Gökkuşağı yayları (Rainbow arcs) */}
+      {rainbowArcs.map((arc, index) => (
         <TouchableOpacity
-          key={part.id}
+          key={arc.id}
           activeOpacity={1}
           style={[
             templateStyles.rainbowArc,
             {
-              backgroundColor: part.color,
-              width: part.width,
-              height: part.height,
-              top: part.top,
+              width: arc.size,
+              height: arc.size / 2,
+              borderRadius: arc.size,
+              backgroundColor: arc.color,
+              borderWidth: 4,
+              borderColor: '#333',
+              borderBottomWidth: 0,
+              overflow: 'hidden',
             },
           ]}
-          onPress={() => onPartPress(part.id)}
-          onLongPress={() => onPartPress(part.id)}
-          onPressIn={() => onPartPress(part.id)}
+          onPress={() => onPartPress(arc.id)}
+          onLongPress={() => onPartPress(arc.id)}
+          onPressIn={() => onPartPress(arc.id)}
         />
       ))}
-      {/* Bulutlar (Clouds) */}
+
+      {/* Sol bulut (Left cloud) */}
       <TouchableOpacity
         activeOpacity={1}
-        style={[templateStyles.cloud, { left: 20, bottom: 20 }]}
+        style={[templateStyles.cloud, { left: 10, bottom: 10 }]}
         onPress={() => onPartPress('cloud1')}
         onLongPress={() => onPartPress('cloud1')}
         onPressIn={() => onPartPress('cloud1')}
       >
-        <View
-          style={[templateStyles.cloudPart, { backgroundColor: coloredParts['cloud1'] || '#FFFFFF' }]}
-        />
+        <View style={[templateStyles.cloudCircle, { backgroundColor: coloredParts['cloud1'] || '#FFFFFF' }]} />
+        <View style={[templateStyles.cloudCircle, { backgroundColor: coloredParts['cloud1'] || '#FFFFFF', left: 20 }]} />
+        <View style={[templateStyles.cloudCircle, { backgroundColor: coloredParts['cloud1'] || '#FFFFFF', left: 40 }]} />
       </TouchableOpacity>
+
+      {/* Sağ bulut (Right cloud) */}
       <TouchableOpacity
         activeOpacity={1}
-        style={[templateStyles.cloud, { right: 20, bottom: 20 }]}
+        style={[templateStyles.cloud, { right: 10, bottom: 10 }]}
         onPress={() => onPartPress('cloud2')}
         onLongPress={() => onPartPress('cloud2')}
         onPressIn={() => onPartPress('cloud2')}
       >
-        <View
-          style={[templateStyles.cloudPart, { backgroundColor: coloredParts['cloud2'] || '#FFFFFF' }]}
-        />
+        <View style={[templateStyles.cloudCircle, { backgroundColor: coloredParts['cloud2'] || '#FFFFFF' }]} />
+        <View style={[templateStyles.cloudCircle, { backgroundColor: coloredParts['cloud2'] || '#FFFFFF', left: 20 }]} />
+        <View style={[templateStyles.cloudCircle, { backgroundColor: coloredParts['cloud2'] || '#FFFFFF', left: 40 }]} />
       </TouchableOpacity>
     </View>
   );
@@ -539,26 +548,27 @@ const templateStyles = StyleSheet.create({
   // Gökkuşağı (Rainbow)
   rainbowContainer: {
     width: 300,
-    height: 400,
+    height: 300,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
     position: 'relative',
+    paddingBottom: 20,
   },
   rainbowArc: {
     position: 'absolute',
-    borderRadius: 200,
-    borderWidth: 4,
-    borderColor: '#333',
+    bottom: 0,
   },
   cloud: {
     position: 'absolute',
-    width: 80,
-    height: 50,
+    width: 70,
+    height: 40,
+    flexDirection: 'row',
   },
-  cloudPart: {
-    width: 80,
-    height: 50,
-    borderRadius: 40,
+  cloudCircle: {
+    position: 'absolute',
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     borderWidth: 3,
     borderColor: '#333',
   },
