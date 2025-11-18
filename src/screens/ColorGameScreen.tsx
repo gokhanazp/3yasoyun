@@ -229,9 +229,9 @@ export const ColorGameScreen: React.FC<ColorGameScreenProps> = ({ navigation }) 
       setShowFeedback('wrong');
       setAttempts(attempts + 1);
 
-      // Tekrar dene mesajı (Try again message)
+      // Yanlış cevap mesajı (Wrong answer message)
       const timeout4 = setTimeout(() => {
-        speakTurkish('Tekrar dene!');
+        speakTurkish('Hayır, bu yanlış');
       }, 300);
       timeoutsRef.current.push(timeout4);
 

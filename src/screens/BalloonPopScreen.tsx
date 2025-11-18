@@ -196,7 +196,7 @@ export const BalloonPopScreen: React.FC<BalloonPopScreenProps> = ({
       setShowFeedback('wrong');
 
       setTimeout(() => {
-        speakTurkish('Yanlış balon! Tekrar dene!');
+        speakTurkish('Hayır, bu yanlış');
       }, 300);
 
       setTimeout(() => {

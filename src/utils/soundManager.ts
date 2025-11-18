@@ -601,7 +601,7 @@ export const speakCorrectAnswer = (animalName: string, sound: string) => {
 
 // Yanlış cevap (Wrong answer)
 export const speakWrongAnswer = () => {
-  speakTurkish('Tekrar dene!');
+  speakTurkish('Hayır, bu yanlış');
 };
 
 // Başarı mesajı (Success message)

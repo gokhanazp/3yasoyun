@@ -149,7 +149,7 @@ export const NumberGameScreen: React.FC<NumberGameScreenProps> = ({
       setShowFeedback('wrong');
 
       setTimeout(() => {
-        speakTurkish('Tekrar dene!');
+        speakTurkish('Hayır, bu yanlış');
       }, 300);
 
       setTimeout(() => {

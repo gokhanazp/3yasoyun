@@ -192,7 +192,7 @@ export const ShapeMatchingScreen: React.FC<ShapeMatchingScreenProps> = ({
       setSelectedSourceShape(null);
 
       setTimeout(() => {
-        speakTurkish('Tekrar dene!');
+        speakTurkish('Hayır, bu yanlış');
       }, 300);
 
       setTimeout(() => {
