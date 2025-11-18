@@ -14,9 +14,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
-import { COLORS } from '../constants/colors';
+import { COLORS, LEARNING_COLORS } from '../constants/colors';
 import { GameButton } from '../components/GameButton';
 import { Confetti } from '../components/Confetti';
+import { BalloonSvg } from '../components/BalloonSvg';
 import { initializeAudio, speakTurkish } from '../utils/soundManager';
 
 const { width, height } = Dimensions.get('window');
@@ -30,15 +31,8 @@ interface BalloonPopScreenProps {
   navigation: BalloonPopScreenNavigationProp;
 }
 
-// Balon renkleri (Balloon colors)
-const BALLOON_COLORS = [
-  { name: 'Kırmızı', color: '#FF3B30' },
-  { name: 'Mavi', color: '#007AFF' },
-  { name: 'Sarı', color: '#FFCC00' },
-  { name: 'Yeşil', color: '#34C759' },
-  { name: 'Turuncu', color: '#FF9500' },
-  { name: 'Mor', color: '#AF52DE' },
-];
+// Balon renkleri - Renkler oyunu ile aynı renkler (Balloon colors - same as Color game)
+const BALLOON_COLORS = LEARNING_COLORS;
 
 // Balon tipi (Balloon type)
 interface Balloon {
@@ -383,12 +377,11 @@ export const BalloonPopScreen: React.FC<BalloonPopScreenProps> = ({
                     onPress={() => handleBalloonPress(balloon)}
                     activeOpacity={0.8}
                   >
-                    {/* Balon (Balloon) */}
-                    <View style={[styles.balloon, { backgroundColor: balloon.color }]}>
-                      <View style={styles.balloonHighlight} />
-                    </View>
-                    {/* Balon ipi (Balloon string) */}
-                    <View style={styles.balloonString} />
+                    {/* SVG Balon (SVG Balloon) */}
+                    <BalloonSvg
+                      color={balloon.color}
+                      size={80}
+                    />
                   </TouchableOpacity>
                 </Animated.View>
               ))}
