@@ -1,7 +1,7 @@
 // Renk öğrenme oyunu ekranı (Color learning game screen)
 // Soru-cevap formatında renk öğrenme oyunu
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useFocusEffect } from '@react-navigation/native';
 import { RootStackParamList } from '../types/navigation';
 import { COLORS, LEARNING_COLORS } from '../constants/colors';
 import { GameButton } from '../components/GameButton';
@@ -45,13 +46,20 @@ export const ColorGameScreen: React.FC<ColorGameScreenProps> = ({ navigation }) 
   // Ses sistemini başlat (Initialize audio system)
   useEffect(() => {
     initializeAudio();
-
-    // Cleanup: Ekrandan çıkınca sesi durdur (Stop speech when leaving screen)
-    return () => {
-      console.log('🧹 ColorGameScreen cleanup - stopping speech');
-      stopSpeaking();
-    };
   }, []);
+
+  // Ekran focus/blur durumunu dinle (Listen to screen focus/blur)
+  useFocusEffect(
+    useCallback(() => {
+      console.log('🎨 ColorGameScreen focused');
+
+      // Cleanup: Ekrandan çıkınca sesi durdur (Stop speech when leaving screen)
+      return () => {
+        console.log('🧹 ColorGameScreen blur - stopping speech');
+        stopSpeaking();
+      };
+    }, [])
+  );
 
   // Türkçe dilbilgisi için yardımcı fonksiyon (Helper function for Turkish grammar)
   // Belirtme hali eki (Accusative case suffix)
