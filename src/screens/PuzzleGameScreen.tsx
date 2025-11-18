@@ -81,6 +81,9 @@ export const PuzzleGameScreen: React.FC<PuzzleGameScreenProps> = ({
   // Her parça için animasyon değerleri (Animation values for each piece)
   const panValues = useRef<Animated.ValueXY[]>([]).current;
 
+  // Yapboz alanı referansı (Puzzle area reference)
+  const puzzleAreaRef = useRef<View>(null);
+
   // Ses sistemini başlat (Initialize audio system)
   React.useEffect(() => {
     initializeAudio();
@@ -92,13 +95,23 @@ export const PuzzleGameScreen: React.FC<PuzzleGameScreenProps> = ({
     setGameStarted(true);
     setGameCompleted(false);
 
+    // Yapboz alanının ekran koordinatlarını al (Get puzzle area screen coordinates)
+    setTimeout(() => {
+      if (puzzleAreaRef.current) {
+        puzzleAreaRef.current.measureInWindow((x, y, width, height) => {
+          console.log('📐 Puzzle area position:', x, y, width, height);
+          setPuzzleAreaLayout({ x, y });
+        });
+      }
+    }, 100);
+
     // Parçaları oluştur ve karıştır (Create and shuffle pieces)
     const initialPieces: PuzzlePiece[] = [0, 1, 2, 3].map((index) => ({
       id: index,
       correctPosition: index,
       currentPosition: {
         x: Math.random() * (width - PIECE_SIZE - 40) + 20,
-        y: height * 0.5 + Math.random() * 100,
+        y: height * 0.6 + Math.random() * 100,
       },
       isPlaced: false,
     }));
@@ -125,59 +138,116 @@ export const PuzzleGameScreen: React.FC<PuzzleGameScreenProps> = ({
   // Parçanın doğru yere yerleştirilip yerleştirilmediğini kontrol et (Check if piece is placed correctly)
   const checkPiecePlacement = (pieceIndex: number, absoluteX: number, absoluteY: number) => {
     const piece = pieces[pieceIndex];
-    if (piece.isPlaced) return false;
+    if (piece.isPlaced) return { placed: false, correct: false };
 
-    // Parçanın hedef pozisyonunu hesapla (Calculate target position)
-    const row = Math.floor(piece.correctPosition / 2);
-    const col = piece.correctPosition % 2;
-    const targetX = puzzleAreaLayout.x + col * PIECE_SIZE;
-    const targetY = puzzleAreaLayout.y + row * PIECE_SIZE;
+    // Parçanın merkez noktasını hesapla (Calculate center point of piece)
+    const pieceCenterX = absoluteX + PIECE_SIZE / 2;
+    const pieceCenterY = absoluteY + PIECE_SIZE / 2;
 
-    // Mesafeyi kontrol et (Check distance)
-    const distance = Math.sqrt(
-      Math.pow(absoluteX - targetX, 2) + Math.pow(absoluteY - targetY, 2)
-    );
+    console.log('🎯 Piece:', pieceIndex, 'Absolute pos:', absoluteX.toFixed(0), absoluteY.toFixed(0), 'Center:', pieceCenterX.toFixed(0), pieceCenterY.toFixed(0));
+    console.log('📐 Puzzle area:', puzzleAreaLayout.x.toFixed(0), puzzleAreaLayout.y.toFixed(0));
 
-    console.log('🎯 Piece:', pieceIndex, 'Distance:', distance.toFixed(2), 'Target:', targetX.toFixed(2), targetY.toFixed(2), 'Current:', absoluteX.toFixed(2), absoluteY.toFixed(2));
+    // Hangi slotun içinde olduğunu kontrol et (Check which slot it's inside)
+    // Daha geniş tolerans ile (With wider tolerance)
+    let targetPosition = -1;
+    const TOLERANCE = PIECE_SIZE * 0.3; // %30 tolerans (30% tolerance)
 
-    // Eğer yeterince yakınsa, parçayı yerleştir (If close enough, place the piece)
-    if (distance < PIECE_SIZE * 0.6) {
-      // Parçayı doğru pozisyona animasyonla taşı (Animate piece to correct position)
+    for (let pos = 0; pos < 4; pos++) {
+      const row = Math.floor(pos / 2);
+      const col = pos % 2;
+      const slotX = puzzleAreaLayout.x + col * PIECE_SIZE;
+      const slotY = puzzleAreaLayout.y + row * PIECE_SIZE;
+      const slotCenterX = slotX + PIECE_SIZE / 2;
+      const slotCenterY = slotY + PIECE_SIZE / 2;
+
+      // Parçanın merkezi ile slotun merkezinin mesafesi (Distance between piece center and slot center)
+      const distance = Math.sqrt(
+        Math.pow(pieceCenterX - slotCenterX, 2) + Math.pow(pieceCenterY - slotCenterY, 2)
+      );
+
+      console.log('  Slot', pos, ':', slotCenterX.toFixed(0), slotCenterY.toFixed(0), 'Distance:', distance.toFixed(0));
+
+      // Eğer yeterince yakınsa (If close enough)
+      if (distance < PIECE_SIZE * 0.7) {
+        targetPosition = pos;
+        break;
+      }
+    }
+
+    console.log('  → Target slot:', targetPosition, 'Correct pos:', piece.correctPosition);
+
+    // Eğer bir slotun içindeyse (If inside a slot)
+    if (targetPosition !== -1) {
+      const row = Math.floor(targetPosition / 2);
+      const col = targetPosition % 2;
+      const targetX = puzzleAreaLayout.x + col * PIECE_SIZE;
+      const targetY = puzzleAreaLayout.y + row * PIECE_SIZE;
+
+      // Parçayı pozisyona animasyonla taşı (Animate piece to position)
       Animated.spring(panValues[pieceIndex], {
         toValue: { x: targetX, y: targetY },
         useNativeDriver: false,
+        tension: 100,
+        friction: 8,
       }).start();
 
-      // Parçayı yerleştirildi olarak işaretle (Mark piece as placed)
-      const newPieces = [...pieces];
-      newPieces[pieceIndex] = {
-        ...piece,
-        currentPosition: { x: targetX, y: targetY },
-        isPlaced: true,
-      };
-      setPieces(newPieces);
+      // Doğru pozisyon mu? (Is it correct position?)
+      const isCorrect = targetPosition === piece.correctPosition;
 
-      speakTurkish('Aferin! Doğru yere koydun!');
+      if (isCorrect) {
+        // DOĞRU! (CORRECT!)
+        console.log('✅ CORRECT! Piece', pieceIndex, 'placed at correct position', targetPosition);
 
-      // Tüm parçalar yerleştirildi mi? (All pieces placed?)
-      if (newPieces.every((p) => p.isPlaced)) {
-        console.log('🎉 PUZZLE COMPLETED!');
-        setGameCompleted(true);
-        setShowConfetti(true);
+        // Parçayı yerleştirildi olarak işaretle (Mark piece as placed)
+        const newPieces = [...pieces];
+        newPieces[pieceIndex] = {
+          ...piece,
+          currentPosition: { x: targetX, y: targetY },
+          isPlaced: true,
+        };
+        setPieces(newPieces);
 
-        setTimeout(() => {
-          speakTurkish(`Tebrikler! ${currentPuzzle.name} yapbozunu tamamladın!`);
-        }, 500);
+        speakTurkish('Doğru!');
 
-        setTimeout(() => {
-          setShowConfetti(false);
-        }, 3000);
+        // Tüm parçalar yerleştirildi mi? (All pieces placed?)
+        const allPlaced = newPieces.every((p) => p.isPlaced);
+        console.log('📊 Placed pieces:', newPieces.filter(p => p.isPlaced).length, '/ 4');
+
+        if (allPlaced) {
+          console.log('🎉 PUZZLE COMPLETED!');
+          setGameCompleted(true);
+          setShowConfetti(true);
+
+          setTimeout(() => {
+            speakTurkish(`Tebrikler! ${currentPuzzle.name} yapbozunu tamamladın!`);
+          }, 500);
+
+          setTimeout(() => {
+            setShowConfetti(false);
+          }, 3000);
+        }
+
+        return { placed: true, correct: true };
+      } else {
+        // YANLIŞ! (WRONG!)
+        console.log('❌ WRONG! Piece', pieceIndex, 'at position', targetPosition, 'but should be at', piece.correctPosition);
+
+        // Parçayı mevcut pozisyona güncelle ama yerleştirildi olarak işaretleme (Update position but don't mark as placed)
+        const newPieces = [...pieces];
+        newPieces[pieceIndex] = {
+          ...piece,
+          currentPosition: { x: targetX, y: targetY },
+          isPlaced: false, // Yanlış yere yerleştirildi, tekrar taşınabilir (Wrong position, can be moved again)
+        };
+        setPieces(newPieces);
+
+        speakTurkish('Yanlış! Tekrar dene!');
+
+        return { placed: true, correct: false };
       }
-
-      return true;
     }
 
-    return false;
+    return { placed: false, correct: false };
   };
 
   // Her parça için PanResponder oluştur (Create PanResponder for each piece)
@@ -207,10 +277,10 @@ export const PuzzleGameScreen: React.FC<PuzzleGameScreenProps> = ({
         const finalX = piece.currentPosition.x + gestureState.dx;
         const finalY = piece.currentPosition.y + gestureState.dy;
 
-        const placed = checkPiecePlacement(pieceIndex, finalX, finalY);
+        const result = checkPiecePlacement(pieceIndex, finalX, finalY);
 
-        if (!placed) {
-          // Parçayı mevcut pozisyona güncelle (Update piece to current position)
+        if (!result.placed) {
+          // Hiçbir yere yerleştirilmedi, mevcut pozisyona güncelle (Not placed anywhere, update to current position)
           const newPieces = [...pieces];
           newPieces[pieceIndex] = {
             ...piece,
@@ -221,6 +291,8 @@ export const PuzzleGameScreen: React.FC<PuzzleGameScreenProps> = ({
           // Animasyonu güncelle (Update animation)
           panValues[pieceIndex].setValue({ x: finalX, y: finalY });
         }
+        // Eğer yerleştirildi ise (doğru veya yanlış), checkPiecePlacement zaten animasyonu yaptı
+        // (If placed (correct or wrong), checkPiecePlacement already did the animation)
       },
     });
   };
@@ -283,11 +355,8 @@ export const PuzzleGameScreen: React.FC<PuzzleGameScreenProps> = ({
           <View style={styles.gameContainer}>
             {/* Yapboz hedef alanı (Puzzle target area) */}
             <View
+              ref={puzzleAreaRef}
               style={styles.puzzleTargetArea}
-              onLayout={(event) => {
-                const { x, y } = event.nativeEvent.layout;
-                setPuzzleAreaLayout({ x, y });
-              }}
             >
               {/* 2x2 grid - Hedef slotlar (Target slots) */}
               {[0, 1, 2, 3].map((position) => {
