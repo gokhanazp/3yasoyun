@@ -222,39 +222,24 @@ export const AnimalSoundsScreen: React.FC<AnimalSoundsScreenProps> = ({
       <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
         {/* Başlık (Header) */}
         <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Text style={styles.backButtonText}>← Geri</Text>
-        </TouchableOpacity>
-        <View style={styles.titleContainer}>
-          <Text style={styles.titleEmoji}>🐶</Text>
-          <Text style={styles.titleText}>Hayvan Sesleri</Text>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+          >
+            <Text style={styles.backButtonText}>← Geri</Text>
+          </TouchableOpacity>
+          <View style={styles.titleContainer}>
+            <Text style={styles.titleEmoji}>🐶</Text>
+            <Text style={styles.titleText}>Hayvan Sesleri</Text>
+          </View>
+
+          {/* Skor ve Speaker (Score and Speaker) */}
+          {gameStarted && (
+            <View style={styles.scoreContainer}>
+              <Text style={styles.scoreText}>{score}</Text>
+            </View>
+          )}
         </View>
-      </View>
-
-      {/* Skor gösterimi (Score display) */}
-      <View style={styles.scoreContainer}>
-        <Text style={styles.scoreText}>
-          Skor: {score} / {attempts}
-        </Text>
-
-        <TouchableOpacity
-          style={styles.speakerButton}
-          onPress={() => {
-            console.log('🔊 Speaker button pressed');
-            if (targetAnimal) {
-              console.log('🎯 Repeating question for:', targetAnimal.name);
-              askAnimalQuestion(targetAnimal.name);
-            } else {
-              console.log('⚠️ No target animal set');
-            }
-          }}
-        >
-          <Text style={styles.speakerIcon}>🔊</Text>
-        </TouchableOpacity>
-      </View>
 
       {/* Soru gösterimi (Question display) */}
       {targetAnimal ? (
@@ -375,22 +360,25 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between', // Geri solda, başlık sağda (Back left, title right)
     paddingHorizontal: 20,
     paddingVertical: 15,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)', // Beyaz arka plan (White background)
+    borderBottomWidth: 2,
+    borderBottomColor: COLORS.border,
   },
   backButton: {
-    padding: 10,
+    padding: 8,
   },
   backButtonText: {
-    fontSize: 20,
-    color: COLORS.green,
-    fontWeight: 'bold',
+    fontSize: 18,
+    color: COLORS.primary,
+    fontWeight: '600',
   },
   titleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    marginLeft: 10,
   },
   titleEmoji: {
     fontSize: 32,
@@ -401,27 +389,15 @@ const styles = StyleSheet.create({
     color: COLORS.text,
   },
   scoreContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    marginHorizontal: 20,
-    marginTop: 10,
-    borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-    borderWidth: 3,
-    borderColor: '#FFD700',
+    backgroundColor: COLORS.green, // Yeşil arka plan (Green background)
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 15,
   },
   scoreText: {
-    fontSize: 24,
+    fontSize: 16,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: '#FFFFFF', // Beyaz yazı (White text)
   },
   speakerButton: {
     padding: 10,

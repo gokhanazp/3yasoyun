@@ -406,24 +406,25 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'space-between', // Geri solda, başlık sağda (Back left, title right)
     paddingHorizontal: 20,
     paddingVertical: 15,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)', // Beyaz arka plan (White background)
+    borderBottomWidth: 2,
+    borderBottomColor: COLORS.border,
   },
   backButton: {
-    padding: 10,
+    padding: 8,
   },
   backButtonText: {
-    fontSize: 20,
-    color: COLORS.blue,
-    fontWeight: 'bold',
+    fontSize: 18,
+    color: COLORS.primary,
+    fontWeight: '600',
   },
   titleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    flex: 1,
-    justifyContent: 'center',
   },
   titleEmoji: {
     fontSize: 32,
@@ -434,20 +435,15 @@ const styles = StyleSheet.create({
     color: COLORS.text,
   },
   scoreContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
+    backgroundColor: COLORS.blue, // Mavi arka plan (Blue background)
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 15,
   },
   scoreText: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: '#FFFFFF', // Beyaz yazı (White text)
   },
   topSection: {
     alignItems: 'center',
