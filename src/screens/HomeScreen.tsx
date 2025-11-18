@@ -8,13 +8,14 @@ import {
   StyleSheet,
   ScrollView,
   StatusBar,
+  Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
 import { GameCard } from '../components/GameCard';
 import { GAMES } from '../constants/gameData';
-import { COLORS } from '../constants/colors';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -26,41 +27,143 @@ interface HomeScreenProps {
 }
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
+  // Animasyonlu dekoratif elementler için (For animated decorative elements)
+  const floatAnim1 = React.useRef(new Animated.Value(0)).current;
+  const floatAnim2 = React.useRef(new Animated.Value(0)).current;
+  const floatAnim3 = React.useRef(new Animated.Value(0)).current;
+
+  React.useEffect(() => {
+    // Yavaş yüzen animasyon (Slow floating animation)
+    const createFloatingAnimation = (animValue: Animated.Value, duration: number) => {
+      return Animated.loop(
+        Animated.sequence([
+          Animated.timing(animValue, {
+            toValue: 1,
+            duration: duration,
+            useNativeDriver: true,
+          }),
+          Animated.timing(animValue, {
+            toValue: 0,
+            duration: duration,
+            useNativeDriver: true,
+          }),
+        ])
+      );
+    };
+
+    createFloatingAnimation(floatAnim1, 3000).start();
+    createFloatingAnimation(floatAnim2, 4000).start();
+    createFloatingAnimation(floatAnim3, 3500).start();
+  }, []);
+
+  const translateY1 = floatAnim1.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, -20],
+  });
+
+  const translateY2 = floatAnim2.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, -25],
+  });
+
+  const translateY3 = floatAnim3.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, -15],
+  });
+
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-      <StatusBar barStyle="dark-content" />
-      
-      {/* Başlık (Header) */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>🎈 Eğlenceli Oyunlar</Text>
-        <Text style={styles.headerSubtitle}>Oynamak için bir oyun seç!</Text>
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" />
+
+      {/* Gradient arka plan (Gradient background) */}
+      <LinearGradient
+        colors={['#667eea', '#764ba2', '#f093fb']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.gradient}
+      />
+
+      {/* Dekoratif yüzen elementler (Decorative floating elements) */}
+      <View style={styles.decorativeContainer}>
+        <Animated.View style={[styles.floatingCircle, styles.circle1, { transform: [{ translateY: translateY1 }] }]} />
+        <Animated.View style={[styles.floatingCircle, styles.circle2, { transform: [{ translateY: translateY2 }] }]} />
+        <Animated.View style={[styles.floatingCircle, styles.circle3, { transform: [{ translateY: translateY3 }] }]} />
       </View>
 
-      {/* Oyun kartları listesi (Game cards list) */}
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {GAMES.map((game) => (
-          <GameCard
-            key={game.id}
-            title={game.title}
-            description={game.description}
-            icon={game.icon}
-            color={game.color}
-            onPress={() => navigation.navigate(game.screen)}
-          />
-        ))}
-      </ScrollView>
-    </SafeAreaView>
+      <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
+        {/* Başlık (Header) */}
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>🎈 Eğlenceli Oyunlar</Text>
+          <Text style={styles.headerSubtitle}>Oynamak için bir oyun seç!</Text>
+        </View>
+
+        {/* Oyun kartları listesi (Game cards list) */}
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {GAMES.map((game) => (
+            <GameCard
+              key={game.id}
+              title={game.title}
+              description={game.description}
+              icon={game.icon}
+              color={game.color}
+              onPress={() => navigation.navigate(game.screen)}
+            />
+          ))}
+        </ScrollView>
+      </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: '#667eea',
+  },
+  gradient: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+  },
+  decorativeContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    overflow: 'hidden',
+  },
+  floatingCircle: {
+    position: 'absolute',
+    borderRadius: 1000,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  circle1: {
+    width: 200,
+    height: 200,
+    top: '10%',
+    left: '-10%',
+  },
+  circle2: {
+    width: 150,
+    height: 150,
+    top: '30%',
+    right: '-5%',
+  },
+  circle3: {
+    width: 180,
+    height: 180,
+    bottom: '15%',
+    left: '5%',
+  },
+  safeArea: {
+    flex: 1,
   },
   header: {
     paddingTop: 20,
@@ -69,14 +172,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 36,
+    fontSize: 40,
     fontWeight: 'bold',
-    color: COLORS.text,
-    marginBottom: 5,
+    color: '#FFFFFF',
+    marginBottom: 8,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   headerSubtitle: {
     fontSize: 18,
-    color: COLORS.textLight,
+    color: '#FFFFFF',
+    opacity: 0.9,
+    textShadowColor: 'rgba(0, 0, 0, 0.2)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   scrollView: {
     flex: 1,

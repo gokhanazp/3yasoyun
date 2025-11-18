@@ -74,48 +74,60 @@ export const GameCard: React.FC<GameCardProps> = ({
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 20,
+    borderRadius: 25,
     padding: 20,
     marginVertical: 10,
     marginHorizontal: 20,
     flexDirection: 'row',
     alignItems: 'center',
-    minHeight: 120,
-    // Gölge efekti (Shadow effect)
+    minHeight: 130,
+    // Daha güçlü gölge efekti (Stronger shadow effect)
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 4,
+      height: 8,
     },
-    shadowOpacity: 0.3,
-    shadowRadius: 4.65,
-    elevation: 8,
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 12,
+    // Beyaz kenarlık (White border)
+    borderWidth: 3,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
   iconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    backgroundColor: 'rgba(255, 255, 255, 0.4)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 15,
+    marginRight: 18,
+    // İç gölge efekti (Inner shadow effect)
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.6)',
   },
   icon: {
-    fontSize: 48,
+    fontSize: 52,
   },
   textContainer: {
     flex: 1,
   },
   title: {
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: 'bold',
     color: '#FFFFFF',
-    marginBottom: 5,
+    marginBottom: 6,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   description: {
     fontSize: 16,
     color: '#FFFFFF',
-    opacity: 0.9,
+    opacity: 0.95,
+    textShadowColor: 'rgba(0, 0, 0, 0.2)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
 });
 
