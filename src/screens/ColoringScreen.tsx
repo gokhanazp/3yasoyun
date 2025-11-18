@@ -1,7 +1,7 @@
 // Boyama oyunu ekranı (Coloring game screen)
 // Çocuklar için basit boyama oyunu
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,8 @@ import {
   TouchableOpacity,
   ScrollView,
   Dimensions,
+  PanResponder,
+  GestureResponderEvent,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -308,43 +310,62 @@ interface TemplateProps {
 // Gökkuşağı şablonu (Rainbow template)
 const RainbowTemplate: React.FC<TemplateProps> = ({ coloredParts, onPartPress }) => {
   const rainbowParts = [
-    { id: 'arc1', color: coloredParts['arc1'] || '#FFFFFF', top: 50 },
-    { id: 'arc2', color: coloredParts['arc2'] || '#FFFFFF', top: 80 },
-    { id: 'arc3', color: coloredParts['arc3'] || '#FFFFFF', top: 110 },
-    { id: 'arc4', color: coloredParts['arc4'] || '#FFFFFF', top: 140 },
-    { id: 'arc5', color: coloredParts['arc5'] || '#FFFFFF', top: 170 },
-    { id: 'arc6', color: coloredParts['arc6'] || '#FFFFFF', top: 200 },
-    { id: 'arc7', color: coloredParts['arc7'] || '#FFFFFF', top: 230 },
+    { id: 'arc1', color: coloredParts['arc1'] || '#FFFFFF', top: 50, width: 300, height: 150 },
+    { id: 'arc2', color: coloredParts['arc2'] || '#FFFFFF', top: 80, width: 270, height: 135 },
+    { id: 'arc3', color: coloredParts['arc3'] || '#FFFFFF', top: 110, width: 240, height: 120 },
+    { id: 'arc4', color: coloredParts['arc4'] || '#FFFFFF', top: 140, width: 210, height: 105 },
+    { id: 'arc5', color: coloredParts['arc5'] || '#FFFFFF', top: 170, width: 180, height: 90 },
+    { id: 'arc6', color: coloredParts['arc6'] || '#FFFFFF', top: 200, width: 150, height: 75 },
+    { id: 'arc7', color: coloredParts['arc7'] || '#FFFFFF', top: 230, width: 120, height: 60 },
   ];
+
+  // Her bölge için PanResponder oluştur (Create PanResponder for each part)
+  const createPanResponder = (partId: string) => {
+    return PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: () => true,
+      onPanResponderGrant: () => {
+        onPartPress(partId);
+      },
+      onPanResponderMove: () => {
+        // Sürüklerken de boyama yap (Paint while dragging)
+        onPartPress(partId);
+      },
+    });
+  };
 
   return (
     <View style={templateStyles.rainbowContainer}>
       {rainbowParts.map((part, index) => (
-        <TouchableOpacity
+        <View
           key={part.id}
           style={[
             templateStyles.rainbowArc,
             {
               backgroundColor: part.color,
-              width: 300 - index * 30,
-              height: 150 - index * 15,
+              width: part.width,
+              height: part.height,
               top: part.top,
             },
           ]}
-          onPress={() => onPartPress(part.id)}
+          {...createPanResponder(part.id).panHandlers}
         />
       ))}
       {/* Bulutlar (Clouds) */}
-      <View style={[templateStyles.cloud, { left: 20, bottom: 20 }]}>
-        <TouchableOpacity
+      <View
+        style={[templateStyles.cloud, { left: 20, bottom: 20 }]}
+        {...createPanResponder('cloud1').panHandlers}
+      >
+        <View
           style={[templateStyles.cloudPart, { backgroundColor: coloredParts['cloud1'] || '#FFFFFF' }]}
-          onPress={() => onPartPress('cloud1')}
         />
       </View>
-      <View style={[templateStyles.cloud, { right: 20, bottom: 20 }]}>
-        <TouchableOpacity
+      <View
+        style={[templateStyles.cloud, { right: 20, bottom: 20 }]}
+        {...createPanResponder('cloud2').panHandlers}
+      >
+        <View
           style={[templateStyles.cloudPart, { backgroundColor: coloredParts['cloud2'] || '#FFFFFF' }]}
-          onPress={() => onPartPress('cloud2')}
         />
       </View>
     </View>
@@ -353,11 +374,22 @@ const RainbowTemplate: React.FC<TemplateProps> = ({ coloredParts, onPartPress })
 
 // Güneş şablonu (Sun template)
 const SunTemplate: React.FC<TemplateProps> = ({ coloredParts, onPartPress }) => {
+  const panResponder = PanResponder.create({
+    onStartShouldSetPanResponder: () => true,
+    onMoveShouldSetPanResponder: () => true,
+    onPanResponderGrant: () => {
+      onPartPress('sun');
+    },
+    onPanResponderMove: () => {
+      onPartPress('sun');
+    },
+  });
+
   return (
     <View style={templateStyles.sunContainer}>
-      <TouchableOpacity
+      <View
         style={[templateStyles.sunCircle, { backgroundColor: coloredParts['sun'] || '#FFFFFF' }]}
-        onPress={() => onPartPress('sun')}
+        {...panResponder.panHandlers}
       />
       {[...Array(12)].map((_, i) => (
         <View
@@ -386,28 +418,41 @@ const FlowerTemplate: React.FC<TemplateProps> = ({ coloredParts, onPartPress }) 
     { top: 80, left: 60 },
   ];
 
+  const createPanResponder = (partId: string) => {
+    return PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: () => true,
+      onPanResponderGrant: () => {
+        onPartPress(partId);
+      },
+      onPanResponderMove: () => {
+        onPartPress(partId);
+      },
+    });
+  };
+
   return (
     <View style={templateStyles.flowerContainer}>
       {/* Yapraklar (Petals) */}
       {petalPositions.map((pos, i) => (
-        <TouchableOpacity
+        <View
           key={`petal${i}`}
           style={[
             templateStyles.petal,
             { top: pos.top, left: pos.left, backgroundColor: coloredParts[`petal${i}`] || '#FFFFFF' },
           ]}
-          onPress={() => onPartPress(`petal${i}`)}
+          {...createPanResponder(`petal${i}`).panHandlers}
         />
       ))}
       {/* Merkez (Center) */}
-      <TouchableOpacity
+      <View
         style={[templateStyles.flowerCenter, { backgroundColor: coloredParts['center'] || '#FFFFFF' }]}
-        onPress={() => onPartPress('center')}
+        {...createPanResponder('center').panHandlers}
       />
       {/* Gövde (Stem) */}
-      <TouchableOpacity
+      <View
         style={[templateStyles.stem, { backgroundColor: coloredParts['stem'] || '#FFFFFF' }]}
-        onPress={() => onPartPress('stem')}
+        {...createPanResponder('stem').panHandlers}
       />
     </View>
   );
@@ -415,71 +460,106 @@ const FlowerTemplate: React.FC<TemplateProps> = ({ coloredParts, onPartPress }) 
 
 // Kalp şablonu (Heart template)
 const HeartTemplate: React.FC<TemplateProps> = ({ coloredParts, onPartPress }) => {
+  const panResponder = PanResponder.create({
+    onStartShouldSetPanResponder: () => true,
+    onMoveShouldSetPanResponder: () => true,
+    onPanResponderGrant: () => {
+      onPartPress('heart');
+    },
+    onPanResponderMove: () => {
+      onPartPress('heart');
+    },
+  });
+
   return (
     <View style={templateStyles.heartContainer}>
-      <TouchableOpacity
+      <View
         style={[templateStyles.heart, { backgroundColor: coloredParts['heart'] || '#FFFFFF' }]}
-        onPress={() => onPartPress('heart')}
+        {...panResponder.panHandlers}
       >
         <Text style={templateStyles.heartText}>❤️</Text>
-      </TouchableOpacity>
+      </View>
     </View>
   );
 };
 
 // Yıldız şablonu (Star template)
 const StarTemplate: React.FC<TemplateProps> = ({ coloredParts, onPartPress }) => {
+  const panResponder = PanResponder.create({
+    onStartShouldSetPanResponder: () => true,
+    onMoveShouldSetPanResponder: () => true,
+    onPanResponderGrant: () => {
+      onPartPress('star');
+    },
+    onPanResponderMove: () => {
+      onPartPress('star');
+    },
+  });
+
   return (
     <View style={templateStyles.starContainer}>
-      <TouchableOpacity
+      <View
         style={[templateStyles.star, { backgroundColor: coloredParts['star'] || '#FFFFFF' }]}
-        onPress={() => onPartPress('star')}
+        {...panResponder.panHandlers}
       >
         <Text style={templateStyles.starText}>⭐</Text>
-      </TouchableOpacity>
+      </View>
     </View>
   );
 };
 
 // Kelebek şablonu (Butterfly template)
 const ButterflyTemplate: React.FC<TemplateProps> = ({ coloredParts, onPartPress }) => {
+  const createPanResponder = (partId: string) => {
+    return PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: () => true,
+      onPanResponderGrant: () => {
+        onPartPress(partId);
+      },
+      onPanResponderMove: () => {
+        onPartPress(partId);
+      },
+    });
+  };
+
   return (
     <View style={templateStyles.butterflyContainer}>
       {/* Sol üst kanat (Left top wing) */}
-      <TouchableOpacity
+      <View
         style={[
           templateStyles.wing,
           templateStyles.leftTopWing,
           { backgroundColor: coloredParts['leftTop'] || '#FFFFFF' },
         ]}
-        onPress={() => onPartPress('leftTop')}
+        {...createPanResponder('leftTop').panHandlers}
       />
       {/* Sağ üst kanat (Right top wing) */}
-      <TouchableOpacity
+      <View
         style={[
           templateStyles.wing,
           templateStyles.rightTopWing,
           { backgroundColor: coloredParts['rightTop'] || '#FFFFFF' },
         ]}
-        onPress={() => onPartPress('rightTop')}
+        {...createPanResponder('rightTop').panHandlers}
       />
       {/* Sol alt kanat (Left bottom wing) */}
-      <TouchableOpacity
+      <View
         style={[
           templateStyles.wing,
           templateStyles.leftBottomWing,
           { backgroundColor: coloredParts['leftBottom'] || '#FFFFFF' },
         ]}
-        onPress={() => onPartPress('leftBottom')}
+        {...createPanResponder('leftBottom').panHandlers}
       />
       {/* Sağ alt kanat (Right bottom wing) */}
-      <TouchableOpacity
+      <View
         style={[
           templateStyles.wing,
           templateStyles.rightBottomWing,
           { backgroundColor: coloredParts['rightBottom'] || '#FFFFFF' },
         ]}
-        onPress={() => onPartPress('rightBottom')}
+        {...createPanResponder('rightBottom').panHandlers}
       />
       {/* Gövde (Body) */}
       <View style={templateStyles.butterflyBody} />
