@@ -17,9 +17,9 @@ import { RootStackParamList } from '../types/navigation';
 import { COLORS, LEARNING_COLORS } from '../constants/colors';
 import { GameButton } from '../components/GameButton';
 import { Confetti } from '../components/Confetti';
-import { playColorSound, initializeAudio, speakTurkish } from '../utils/soundManager';
+import { playColorSound, initializeAudio, speakTurkish, stopSpeaking } from '../utils/soundManager';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 const BALLOON_SIZE = width * 0.28; // Balon boyutu ekran genişliğinin %28'i (daha küçük)
 
 type ColorGameScreenNavigationProp = NativeStackNavigationProp<
@@ -45,7 +45,37 @@ export const ColorGameScreen: React.FC<ColorGameScreenProps> = ({ navigation }) 
   // Ses sistemini başlat (Initialize audio system)
   useEffect(() => {
     initializeAudio();
+
+    // Cleanup: Ekrandan çıkınca sesi durdur (Stop speech when leaving screen)
+    return () => {
+      console.log('🧹 ColorGameScreen cleanup - stopping speech');
+      stopSpeaking();
+    };
   }, []);
+
+  // Türkçe dilbilgisi için yardımcı fonksiyon (Helper function for Turkish grammar)
+  const getAccusativeSuffix = (word: string): string => {
+    // Ünlü harfler (Vowels)
+    const backVowels = ['a', 'ı', 'o', 'u']; // Kalın ünlüler (Back vowels)
+    const frontVowels = ['e', 'i', 'ö', 'ü']; // İnce ünlüler (Front vowels)
+
+    // Kelimenin son ünlüsünü bul (Find last vowel in word)
+    let lastVowel = '';
+    for (let i = word.length - 1; i >= 0; i--) {
+      const char = word[i].toLowerCase();
+      if ([...backVowels, ...frontVowels].includes(char)) {
+        lastVowel = char;
+        break;
+      }
+    }
+
+    // Büyük ünlü uyumu (Vowel harmony)
+    if (backVowels.includes(lastVowel)) {
+      return 'yı'; // Kalın ünlü (Back vowel)
+    } else {
+      return 'yi'; // İnce ünlü (Front vowel)
+    }
+  };
 
   // Yeni soru sor (Ask new question)
   const askNewQuestion = () => {
@@ -58,7 +88,8 @@ export const ColorGameScreen: React.FC<ColorGameScreenProps> = ({ navigation }) 
 
     // Soruyu sor (Ask question)
     setTimeout(() => {
-      speakTurkish(`${randomColor.name}yı bul`);
+      const suffix = getAccusativeSuffix(randomColor.name);
+      speakTurkish(`${randomColor.name}${suffix} bul`);
     }, 500);
   };
 

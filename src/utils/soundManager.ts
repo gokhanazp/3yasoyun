@@ -606,13 +606,36 @@ export const speakSuccess = () => {
   speakTurkish('Harika! Çok güzel!');
 };
 
+// Konuşmayı durdur (Stop speaking)
+export const stopSpeaking = () => {
+  try {
+    console.log('🛑 Stopping speech...');
+
+    // Kuyruğu temizle (Clear queue)
+    speechQueue.length = 0;
+    isSpeakingNow = false;
+
+    // Platform'a göre durdur (Stop based on platform)
+    if (Platform.OS === 'web') {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    } else {
+      // Mobil için expo-speech
+      Speech.stop();
+    }
+
+    console.log('✅ Speech stopped');
+  } catch (error) {
+    console.log('❌ Stop speech error:', error);
+  }
+};
+
 // Tüm sesleri temizle (Clean up all sounds)
 export const cleanupSounds = async () => {
   try {
-    // Sesli okumayı durdur (Stop speech)
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-    }
+    // Konuşmayı durdur (Stop speech)
+    stopSpeaking();
 
     // Ses cache'ini temizle (Clean sound cache)
     for (const key in soundCache) {
