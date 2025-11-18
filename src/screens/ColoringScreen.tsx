@@ -316,9 +316,13 @@ interface TemplateProps {
 
 // Tavşan şablonu (Rabbit template)
 const RabbitTemplate: React.FC<TemplateProps> = ({ coloredParts, onPartPress }) => {
+  const screenWidth = Dimensions.get('window').width;
+  const svgWidth = screenWidth - 40; // 20px padding her yandan (20px padding each side)
+  const svgHeight = svgWidth * 1.2; // Aspect ratio
+
   return (
     <View style={templateStyles.rabbitContainer}>
-      <Svg width="300" height="400" viewBox="0 0 500 500">
+      <Svg width={svgWidth} height={svgHeight} viewBox="50 0 400 500" preserveAspectRatio="xMidYMid meet">
         {/* Sol kulak (Left ear) */}
         <G onPress={() => onPartPress('leftEar')}>
           <Path
@@ -684,10 +688,11 @@ const ButterflyTemplate: React.FC<TemplateProps> = ({ coloredParts, onPartPress 
 const templateStyles = StyleSheet.create({
   // Tavşan (Rabbit)
   rabbitContainer: {
-    width: 300,
-    height: 400,
+    width: '100%',
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: 20,
   },
   // Gökkuşağı (Rainbow)
   rainbowContainer: {
