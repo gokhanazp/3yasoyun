@@ -258,7 +258,7 @@ export const ColorGameScreen: React.FC<ColorGameScreenProps> = ({ navigation }) 
           targetColor && (
             <View style={styles.questionContainer}>
               <Text style={styles.questionText}>
-                {targetColor.name}yı bul! 🎨
+                {targetColor.name}{getAccusativeSuffix(targetColor.name)} bul! 🎨
               </Text>
             </View>
           )
