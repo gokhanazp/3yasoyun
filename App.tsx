@@ -16,6 +16,7 @@ import { ShapeMatchingScreen } from './src/screens/ShapeMatchingScreen';
 import { NumberGameScreen } from './src/screens/NumberGameScreen';
 import { FruitGameScreen } from './src/screens/FruitGameScreen';
 import { BalloonPopScreen } from './src/screens/BalloonPopScreen';
+import { ColoringScreen } from './src/screens/ColoringScreen';
 
 // Navigation tipleri (Navigation types)
 import { RootStackParamList } from './src/types/navigation';
@@ -44,6 +45,7 @@ export default function App() {
             <Stack.Screen name="NumberGame" component={NumberGameScreen} />
             <Stack.Screen name="FruitGame" component={FruitGameScreen} />
             <Stack.Screen name="BalloonPop" component={BalloonPopScreen} />
+            <Stack.Screen name="Coloring" component={ColoringScreen} />
           </Stack.Navigator>
         </NavigationContainer>
       </GestureHandlerRootView>

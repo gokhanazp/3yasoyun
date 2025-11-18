@@ -52,6 +52,14 @@ export const GAMES: GameItem[] = [
     color: COLORS.pink,
     screen: 'BalloonPop',
   },
+  {
+    id: '7',
+    title: 'Boyama',
+    description: 'Resimleri boya ve eğlen!',
+    icon: '🖍️',
+    color: '#FF6B9D',
+    screen: 'Coloring',
+  },
 ];
 
 // Hayvan verileri (Animal data)

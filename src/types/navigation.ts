@@ -9,6 +9,7 @@ export type RootStackParamList = {
   NumberGame: undefined;        // Sayı öğrenme oyunu (Number learning game)
   FruitGame: undefined;         // Meyve öğrenme oyunu (Fruit learning game)
   BalloonPop: undefined;        // Balon patlatma oyunu (Balloon pop game)
+  Coloring: undefined;          // Boyama oyunu (Coloring game)
 };
 
 // Oyun tipleri (Game types)
