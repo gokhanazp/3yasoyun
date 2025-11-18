@@ -380,7 +380,7 @@ export const BalloonPopScreen: React.FC<BalloonPopScreenProps> = ({
                     {/* SVG Balon (SVG Balloon) */}
                     <BalloonSvg
                       color={balloon.color}
-                      size={80}
+                      size={120}
                     />
                   </TouchableOpacity>
                 </Animated.View>
