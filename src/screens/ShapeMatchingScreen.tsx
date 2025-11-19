@@ -67,13 +67,9 @@ export const ShapeMatchingScreen: React.FC<ShapeMatchingScreenProps> = ({
     // Eşleşmemiş şekillerden rastgele seç (Select random unmatched shape)
     const unmatchedShapes = SHAPES.filter(s => !currentMatchedShapes.includes(s.id));
 
-    console.log('🎯 askNewQuestion called');
-    console.log('📊 Matched shapes:', currentMatchedShapes);
-    console.log('📊 Unmatched shapes:', unmatchedShapes.map(s => s.name));
 
     if (unmatchedShapes.length === 0) {
       // Tüm şekiller eşleşti! (All shapes matched!)
-      console.log('🎉 GAME COMPLETED!');
       setTargetShape(null);
       setGameCompleted(true);
       setShowConfetti(true);
@@ -84,7 +80,6 @@ export const ShapeMatchingScreen: React.FC<ShapeMatchingScreenProps> = ({
     }
 
     const randomShape = unmatchedShapes[Math.floor(Math.random() * unmatchedShapes.length)];
-    console.log('🎯 New target shape:', randomShape.name);
     setTargetShape(randomShape);
     setSelectedSourceShape(null);
     setShowFeedback(null);
@@ -138,23 +133,17 @@ export const ShapeMatchingScreen: React.FC<ShapeMatchingScreenProps> = ({
   const handleTargetShapePress = (shape: typeof SHAPES[0], index: number) => {
     if (!gameStarted || !targetShape || !selectedSourceShape || matchedShapes.includes(shape.id) || gameCompleted) return;
 
-    console.log('🎯 Target pressed:', shape.name);
-    console.log('🎯 Selected source:', selectedSourceShape);
-    console.log('🎯 Target shape ID:', shape.id);
-    console.log('🎯 Match?', selectedSourceShape === shape.id);
 
     setAttempts(attempts + 1);
 
     if (selectedSourceShape === shape.id) {
       // DOĞRU EŞLEŞME! (CORRECT MATCH!)
-      console.log('✅ CORRECT MATCH!');
       setShowFeedback('correct');
       setScore(score + 1);
 
       // Yeni matched shapes listesi oluştur (Create new matched shapes list)
       const newMatchedShapes = [...matchedShapes, shape.id];
       setMatchedShapes(newMatchedShapes);
-      console.log('📊 New matched shapes:', newMatchedShapes);
 
       setShowConfetti(true);
       playClickSound();
@@ -187,7 +176,6 @@ export const ShapeMatchingScreen: React.FC<ShapeMatchingScreenProps> = ({
       }, 2000);
     } else {
       // YANLIŞ EŞLEŞME! (WRONG MATCH!)
-      console.log('❌ WRONG MATCH!');
       setShowFeedback('wrong');
       setSelectedSourceShape(null);
 

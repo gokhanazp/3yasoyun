@@ -106,12 +106,8 @@ export const BalloonPopScreen: React.FC<BalloonPopScreenProps> = ({
 
   // Yeni renk sor (Ask for new color)
   const askNewColor = (currentBalloons: Balloon[] = balloons) => {
-    // Balonları kontrol et (Check balloons)
-    console.log('🎯 askNewColor called, balloons count:', currentBalloons.length);
-
     setTimeout(() => {
       if (currentBalloons.length === 0) {
-        console.log('⚠️ No balloons, creating new ones...');
         for (let i = 0; i < 3; i++) {
           setTimeout(() => createBalloon(), i * 500);
         }
@@ -122,8 +118,6 @@ export const BalloonPopScreen: React.FC<BalloonPopScreenProps> = ({
       const randomBalloon = currentBalloons[Math.floor(Math.random() * currentBalloons.length)];
       setTargetColor(randomBalloon.colorName);
       setShowFeedback(null);
-
-      console.log('🎯 Target color:', randomBalloon.colorName);
 
       setTimeout(() => {
         // Türkçe dilbilgisi için doğru ek (Correct suffix for Turkish grammar)
@@ -141,7 +135,6 @@ export const BalloonPopScreen: React.FC<BalloonPopScreenProps> = ({
         } else if (randomBalloon.colorName === 'Mor') {
           phrase = 'Mor balonu patlat';
         }
-        console.log(`🎤 Speaking: ${phrase}`);
         speakTurkish(phrase);
       }, 800);
     }, 100);
@@ -150,10 +143,6 @@ export const BalloonPopScreen: React.FC<BalloonPopScreenProps> = ({
   // Balona tıklandığında (When balloon is pressed)
   const handleBalloonPress = (balloon: Balloon) => {
     if (!targetColor) return;
-
-    console.log('🎈 Balloon pressed:', balloon.colorName);
-    console.log('🎯 Target color:', targetColor);
-    console.log('🎯 Match?', balloon.colorName === targetColor);
 
     setAttempts(attempts + 1);
 
@@ -176,7 +165,6 @@ export const BalloonPopScreen: React.FC<BalloonPopScreenProps> = ({
 
     if (balloon.colorName === targetColor) {
       // DOĞRU! (CORRECT!)
-      console.log('✅ CORRECT!');
       setShowFeedback('correct');
       setScore(score + 1);
       setShowConfetti(true);
@@ -192,7 +180,6 @@ export const BalloonPopScreen: React.FC<BalloonPopScreenProps> = ({
       }, 2000);
     } else {
       // YANLIŞ! (WRONG!)
-      console.log('❌ WRONG!');
       setShowFeedback('wrong');
 
       setTimeout(() => {
@@ -215,12 +202,10 @@ export const BalloonPopScreen: React.FC<BalloonPopScreenProps> = ({
     setShowFeedback(null);
     balloonIdCounter.current = 0;
 
-    console.log('🎮 Game starting...');
     speakTurkish('Söylediğim renkteki balonu patlat!');
 
     // İlk balonları oluştur ve renk sor (Create initial balloons and ask for color)
     setTimeout(() => {
-      console.log('🎈 Creating initial balloons...');
       const initialBalloons: Balloon[] = [];
 
       // 3 balon oluştur (Create 3 balloons)
@@ -257,7 +242,6 @@ export const BalloonPopScreen: React.FC<BalloonPopScreenProps> = ({
 
       // İlk rengi sor (Ask for first color)
       setTimeout(() => {
-        console.log('🎯 Asking for first color with initial balloons...');
         askNewColor(initialBalloons);
       }, 3000);
     }, 1500);

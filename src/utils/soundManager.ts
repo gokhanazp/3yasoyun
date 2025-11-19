@@ -51,24 +51,18 @@ export const initializeAudio = async () => {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       // Sesleri yükle (Load voices)
       const voices = window.speechSynthesis.getVoices();
-      console.log('🔊 Initializing speech synthesis...');
-      console.log('Available voices:', voices.length);
 
       // Sesler yüklendiğinde tekrar kontrol et (Check again when voices are loaded)
       if (voices.length === 0) {
         window.speechSynthesis.onvoiceschanged = () => {
           const loadedVoices = window.speechSynthesis.getVoices();
-          console.log('✅ Voices loaded:', loadedVoices.length);
           const turkishVoices = loadedVoices.filter(v => v.lang.startsWith('tr'));
-          console.log('🇹🇷 Turkish voices:', turkishVoices.map(v => v.name));
         };
       } else {
         const turkishVoices = voices.filter(v => v.lang.startsWith('tr'));
-        console.log('🇹🇷 Turkish voices:', turkishVoices.map(v => v.name));
       }
     }
   } catch (error) {
-    console.log('Audio initialization error:', error);
   }
 };
 
@@ -77,31 +71,17 @@ export const playSound = async (soundType: SoundType) => {
   try {
     // Web'de direkt Web Audio API kullan (Use Web Audio API directly on web)
     if (typeof window !== 'undefined' && typeof window.AudioContext !== 'undefined') {
-      console.log(`🔊 Playing web sound: ${soundType}`);
       playWebSound(soundType);
       return;
     }
 
     // Mobilde Expo Audio kullan (Use Expo Audio on mobile)
     // Yerel dosya varsa çal (Play local file if available)
-    if (soundFiles[soundType]) {
-      console.log(`📱 Playing mobile sound: ${soundType}`);
-
-      // Yeni AudioPlayer oluştur (Create new AudioPlayer)
-      const player = new AudioPlayer(soundFiles[soundType]);
-
-      // Sesi çal (Play sound)
-      await player.play();
-
-      console.log(`✅ Sound played: ${soundType}`);
-      return;
-    }
-
-    // Ses dosyası yoksa bilgi ver (If no sound file, log info)
-    console.log(`ℹ️ No sound file for: ${soundType}`);
-    console.log(`ℹ️ Add sound files to assets/sounds/ and uncomment in soundManager.ts`);
+    // NOT: AudioPlayer hook olarak kullanılmalı, şimdilik web seslerini kullanıyoruz
+    // if (soundFiles[soundType]) {
+    //   // Ses çalma kodu buraya gelecek
+    // }
   } catch (error) {
-    console.log('Sound play error:', error);
   }
 };
 
@@ -112,7 +92,6 @@ const playWebSound = (soundType: SoundType) => {
     // AudioContext kontrolü (Check if AudioContext is available)
     if (typeof window === 'undefined' ||
         (typeof window.AudioContext === 'undefined' && typeof (window as any).webkitAudioContext === 'undefined')) {
-      console.log('ℹ️ AudioContext not available (mobile device)');
       return;
     }
 
@@ -148,7 +127,6 @@ const playWebSound = (soundType: SoundType) => {
         playSimpleSound(audioContext, soundType);
     }
   } catch (error) {
-    console.log('ℹ️ Web Audio API error:', error);
   }
 };
 
@@ -360,7 +338,6 @@ const playSimpleSound = (audioContext: AudioContext, soundType: SoundType) => {
 
 // Renk sesi çal (Play color sound)
 export const playColorSound = (colorName: string) => {
-  console.log('🎨 Playing color sound:', colorName);
 
   // Her renk için farklı nota (Different note for each color)
   const colorFrequencies: { [key: string]: number } = {
@@ -397,14 +374,11 @@ export const playColorSound = (colorName: string) => {
 
         oscillator.start(audioContext.currentTime);
         oscillator.stop(audioContext.currentTime + 0.3);
-        console.log('✅ Color sound played (web)');
       }
     } catch (error) {
-      console.log('❌ Color sound error:', error);
     }
   } else {
     // Mobilde sadece log (Mobile: just log for now)
-    console.log('📱 Color sound on mobile (no audio yet)');
   }
 };
 
@@ -432,11 +406,9 @@ export const playNumberSound = (number: number) => {
       oscillator.start(audioContext.currentTime);
       oscillator.stop(audioContext.currentTime + 0.4);
     } catch (error) {
-      console.log('Number sound error:', error);
     }
   } else {
     // Mobile'da sayı sesi yok (No number sound on mobile yet)
-    console.log('📱 Number sound on mobile (no audio yet)');
   }
 };
 
@@ -461,31 +433,25 @@ let activeTimeouts: NodeJS.Timeout[] = [];
 // Kuyruk sistemi ile çalışır
 // Web'de Web Speech API, mobilde expo-speech kullanır
 export const speakTurkish = async (text: string) => {
-  console.log('🎤 speakTurkish called with:', text);
-  console.log('📱 Platform:', Platform.OS);
 
   // Platform kontrolü (Check platform)
   if (Platform.OS === 'web') {
     // Web'de Web Speech API kullan (Use Web Speech API on web)
-    console.log('🌐 Using Web Speech API');
 
     if (typeof window !== 'undefined' && typeof window.speechSynthesis !== 'undefined') {
       // Kuyruğa ekle (Add to queue)
       speechQueue.push(text);
-      console.log('📝 Added to queue. Queue length:', speechQueue.length);
 
       // Eğer konuşma devam etmiyorsa, başlat (If not speaking, start)
       if (!isSpeakingNow) {
         processQueue();
       }
     } else {
-      console.log('❌ Web Speech API not available');
     }
     return;
   }
 
   // Mobilde expo-speech kullan (Use expo-speech on mobile)
-  console.log('📱 Using expo-speech for mobile');
   try {
     // Önce mevcut konuşmaları durdur (Stop any ongoing speech)
     await Speech.stop();
@@ -496,16 +462,13 @@ export const speakTurkish = async (text: string) => {
       pitch: 1.1,
       rate: 0.85,
     });
-    console.log('✅ Speech completed:', text);
   } catch (error) {
-    console.log('❌ Speech error:', error);
   }
 };
 
 // Kuyruğu işle (Process queue)
 const processQueue = () => {
   if (speechQueue.length === 0) {
-    console.log('✅ Queue empty');
     isSpeakingNow = false;
     return;
   }
@@ -514,7 +477,6 @@ const processQueue = () => {
   const text = speechQueue.shift()!;
   isSpeakingNow = true;
 
-  console.log('🔄 Processing:', text, '(Remaining:', speechQueue.length, ')');
 
   try {
     const utterance = new SpeechSynthesisUtterance(text);
@@ -531,16 +493,13 @@ const processQueue = () => {
 
     if (turkishVoice) {
       utterance.voice = turkishVoice;
-      console.log('✅ Using Turkish voice:', turkishVoice.name);
     }
 
     // Event listeners
     utterance.onstart = () => {
-      console.log('✅✅✅ Speech STARTED:', text);
     };
 
     utterance.onend = () => {
-      console.log('✅ Speech ENDED:', text);
       isSpeakingNow = false;
 
       // Sonraki konuşmayı işle (Process next)
@@ -560,7 +519,6 @@ const processQueue = () => {
     };
 
     // Konuşmayı başlat (Start speaking)
-    console.log('🚀 Starting speech...');
     window.speechSynthesis.speak(utterance);
 
   } catch (error) {
@@ -612,9 +570,6 @@ export const speakSuccess = () => {
 // Konuşmayı durdur (Stop speaking)
 export const stopSpeaking = () => {
   try {
-    console.log('🛑 Stopping speech...');
-    console.log('📊 Queue length:', speechQueue.length);
-    console.log('⏰ Active timeouts:', activeTimeouts.length);
 
     // Kuyruğu temizle (Clear queue)
     speechQueue.length = 0;
@@ -630,17 +585,13 @@ export const stopSpeaking = () => {
     if (Platform.OS === 'web') {
       if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
         window.speechSynthesis.cancel();
-        console.log('🌐 Web speech cancelled');
       }
     } else {
       // Mobil için expo-speech
       Speech.stop();
-      console.log('📱 Mobile speech stopped');
     }
 
-    console.log('✅ Speech stopped successfully');
   } catch (error) {
-    console.log('❌ Stop speech error:', error);
   }
 };
 
@@ -656,7 +607,7 @@ export const cleanupSounds = async () => {
       soundCache[key].remove();
     }
   } catch (error) {
-    console.log('Sound cleanup error:', error);
+    // Cleanup error - silent fail
   }
 };
 

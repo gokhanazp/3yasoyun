@@ -56,13 +56,9 @@ export const FruitGameScreen: React.FC<FruitGameScreenProps> = ({
     // Bulunmamış meyvelerden rastgele seç (Select random unfound fruit)
     const unfoundFruits = FRUITS.filter(f => !currentFoundFruits.includes(f.id));
     
-    console.log('🎯 askNewQuestion called');
-    console.log('📊 Found fruits:', currentFoundFruits);
-    console.log('📊 Unfound fruits:', unfoundFruits.map(f => f.name));
     
     if (unfoundFruits.length === 0) {
       // Tüm meyveler bulundu! (All fruits found!)
-      console.log('🎉 GAME COMPLETED!');
       setTargetFruit(null);
       setGameCompleted(true);
       setShowConfetti(true);
@@ -73,7 +69,6 @@ export const FruitGameScreen: React.FC<FruitGameScreenProps> = ({
     }
 
     const randomFruit = unfoundFruits[Math.floor(Math.random() * unfoundFruits.length)];
-    console.log('🎯 New target fruit:', randomFruit.name);
     setTargetFruit(randomFruit);
     setShowFeedback(null);
 
@@ -111,9 +106,6 @@ export const FruitGameScreen: React.FC<FruitGameScreenProps> = ({
   const handleFruitPress = (fruit: typeof FRUITS[0], index: number) => {
     if (!gameStarted || !targetFruit || foundFruits.includes(fruit.id) || gameCompleted) return;
 
-    console.log('🎯 Fruit pressed:', fruit.name);
-    console.log('🎯 Target fruit:', targetFruit.name);
-    console.log('🎯 Match?', fruit.id === targetFruit.id);
 
     setAttempts(attempts + 1);
 
@@ -133,14 +125,12 @@ export const FruitGameScreen: React.FC<FruitGameScreenProps> = ({
 
     if (fruit.id === targetFruit.id) {
       // DOĞRU CEVAP! (CORRECT ANSWER!)
-      console.log('✅ CORRECT!');
       setShowFeedback('correct');
       setScore(score + 1);
       
       // Yeni found fruits listesi oluştur (Create new found fruits list)
       const newFoundFruits = [...foundFruits, fruit.id];
       setFoundFruits(newFoundFruits);
-      console.log('📊 New found fruits:', newFoundFruits);
 
       setShowConfetti(true);
 
@@ -157,7 +147,6 @@ export const FruitGameScreen: React.FC<FruitGameScreenProps> = ({
       }, 2000);
     } else {
       // YANLIŞ CEVAP! (WRONG ANSWER!)
-      console.log('❌ WRONG!');
       setShowFeedback('wrong');
 
       setTimeout(() => {

@@ -55,12 +55,8 @@ export const ColorGameScreen: React.FC<ColorGameScreenProps> = ({ navigation }) 
   // Ekran focus/blur durumunu dinle (Listen to screen focus/blur)
   useFocusEffect(
     useCallback(() => {
-      console.log('🎨 ColorGameScreen focused');
-
       // Cleanup: Ekrandan çıkınca sesi durdur (Stop speech when leaving screen)
       return () => {
-        console.log('🧹 ColorGameScreen blur - stopping speech and clearing timeouts');
-
         // Tüm timeout'ları iptal et (Cancel all timeouts)
         timeoutsRef.current.forEach(timeout => {
           clearTimeout(timeout);
@@ -138,8 +134,6 @@ export const ColorGameScreen: React.FC<ColorGameScreenProps> = ({ navigation }) 
     setTargetColor(randomColor);
     setShowFeedback(null);
 
-    console.log('🎯 Asking question for:', randomColor.name);
-
     // Soruyu sor (Ask question)
     const timeout = setTimeout(() => {
       const suffix = getAccusativeSuffix(randomColor.name);
@@ -150,7 +144,6 @@ export const ColorGameScreen: React.FC<ColorGameScreenProps> = ({ navigation }) 
 
   // Oyunu başlat (Start game)
   const startGame = () => {
-    console.log('🎮 Oyun başlatılıyor...');
     setGameStarted(true);
     setScore(0);
     setAttempts(0);
@@ -183,7 +176,6 @@ export const ColorGameScreen: React.FC<ColorGameScreenProps> = ({ navigation }) 
     // Doğru mu kontrol et (Check if correct)
     if (color.name === targetColor.name) {
       // DOĞRU CEVAP! (CORRECT ANSWER!)
-      console.log('✅ Doğru cevap!');
       setShowFeedback('correct');
       setScore(score + 1);
       setAttempts(attempts + 1);
@@ -225,7 +217,6 @@ export const ColorGameScreen: React.FC<ColorGameScreenProps> = ({ navigation }) 
       timeoutsRef.current.push(timeout3);
     } else {
       // YANLIŞ CEVAP! (WRONG ANSWER!)
-      console.log('❌ Yanlış cevap!');
       setShowFeedback('wrong');
       setAttempts(attempts + 1);
 
@@ -284,7 +275,6 @@ export const ColorGameScreen: React.FC<ColorGameScreenProps> = ({ navigation }) 
           <TouchableOpacity
             style={styles.backButton}
             onPress={() => {
-              console.log('🔙 Going back - stopping speech');
               stopSpeaking();
               navigation.goBack();
             }}

@@ -9,6 +9,7 @@ import {
   ScrollView,
   StatusBar,
   Animated,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -93,7 +94,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
         {/* Başlık (Header) */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>🎈 Eğlenceli Oyunlar</Text>
+          {/* Logo */}
+          <Image
+            source={require('../../assets/0-3yaslogo.png')}
+            style={styles.logo}
+            resizeMode="contain"
+          />
           <Text style={styles.headerSubtitle}>Oynamak için bir oyun seç!</Text>
         </View>
 
@@ -166,27 +172,24 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingTop: 20,
+    paddingTop: 30,
     paddingBottom: 20,
     paddingHorizontal: 20,
     alignItems: 'center',
   },
-  headerTitle: {
-    fontSize: 40,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    marginBottom: 8,
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
+  logo: {
+    width: '90%',
+    height: 250,
+    marginBottom: 15,
   },
   headerSubtitle: {
-    fontSize: 18,
+    fontSize: 20,
+    fontWeight: '600',
     color: '#FFFFFF',
-    opacity: 0.9,
-    textShadowColor: 'rgba(0, 0, 0, 0.2)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    opacity: 0.95,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 3,
   },
   scrollView: {
     flex: 1,

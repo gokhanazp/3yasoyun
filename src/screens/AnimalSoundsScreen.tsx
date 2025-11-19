@@ -68,7 +68,6 @@ export const AnimalSoundsScreen: React.FC<AnimalSoundsScreenProps> = ({
   // Ses sistemini başlat (Initialize audio)
   useEffect(() => {
     initializeAudio();
-    console.log('⚠️ Oyunu başlatmak için herhangi bir hayvana tıklayın!');
   }, []);
 
   // Yeni soru sor (Ask new question)
@@ -81,7 +80,6 @@ export const AnimalSoundsScreen: React.FC<AnimalSoundsScreenProps> = ({
 
     // 1 saniye sonra soruyu sor (Ask question after 1 second)
     setTimeout(() => {
-      console.log('🎯 Asking question for:', animal.name);
       askAnimalQuestion(animal.name);
     }, 1000);
   };
@@ -90,7 +88,6 @@ export const AnimalSoundsScreen: React.FC<AnimalSoundsScreenProps> = ({
   const handleAnimalPress = (animal: typeof ANIMALS[0], index: number) => {
     // Eğer oyun başlamamışsa, başlat (If game not started, start it)
     if (!targetAnimal) {
-      console.log('🎮 Oyun başlatılıyor...');
       askNewQuestion();
       return;
     }
@@ -259,12 +256,8 @@ export const AnimalSoundsScreen: React.FC<AnimalSoundsScreenProps> = ({
           <TouchableOpacity
             style={styles.speakerButton}
             onPress={() => {
-              console.log('🔊 Speaker button pressed');
               if (targetAnimal) {
-                console.log('🎯 Repeating question for:', targetAnimal.name);
                 askAnimalQuestion(targetAnimal.name);
-              } else {
-                console.log('⚠️ No target animal set');
               }
             }}
           >

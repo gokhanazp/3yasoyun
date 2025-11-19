@@ -56,13 +56,9 @@ export const NumberGameScreen: React.FC<NumberGameScreenProps> = ({
     // Bulunmamış sayılardan rastgele seç (Select random unfound number)
     const unfoundNumbers = NUMBERS.filter(n => !currentFoundNumbers.includes(n.value));
 
-    console.log('🎯 askNewQuestion called');
-    console.log('📊 Found numbers:', currentFoundNumbers);
-    console.log('📊 Unfound numbers:', unfoundNumbers.map(n => n.name));
 
     if (unfoundNumbers.length === 0) {
       // Tüm sayılar bulundu! (All numbers found!)
-      console.log('🎉 GAME COMPLETED!');
       setTargetNumber(null);
       setGameCompleted(true);
       setShowConfetti(true);
@@ -73,7 +69,6 @@ export const NumberGameScreen: React.FC<NumberGameScreenProps> = ({
     }
 
     const randomNumber = unfoundNumbers[Math.floor(Math.random() * unfoundNumbers.length)];
-    console.log('🎯 New target number:', randomNumber.name);
     setTargetNumber(randomNumber);
     setShowFeedback(null);
 
@@ -98,9 +93,6 @@ export const NumberGameScreen: React.FC<NumberGameScreenProps> = ({
   const handleNumberPress = (number: typeof NUMBERS[0], index: number) => {
     if (!gameStarted || !targetNumber || foundNumbers.includes(number.value) || gameCompleted) return;
 
-    console.log('🎯 Number pressed:', number.name);
-    console.log('🎯 Target number:', targetNumber.name);
-    console.log('🎯 Match?', number.value === targetNumber.value);
 
     setAttempts(attempts + 1);
 
@@ -120,14 +112,12 @@ export const NumberGameScreen: React.FC<NumberGameScreenProps> = ({
 
     if (number.value === targetNumber.value) {
       // DOĞRU CEVAP! (CORRECT ANSWER!)
-      console.log('✅ CORRECT!');
       setShowFeedback('correct');
       setScore(score + 1);
 
       // Yeni found numbers listesi oluştur (Create new found numbers list)
       const newFoundNumbers = [...foundNumbers, number.value];
       setFoundNumbers(newFoundNumbers);
-      console.log('📊 New found numbers:', newFoundNumbers);
 
       setShowConfetti(true);
       playNumberSound(number.value);
@@ -145,7 +135,6 @@ export const NumberGameScreen: React.FC<NumberGameScreenProps> = ({
       }, 2000);
     } else {
       // YANLIŞ CEVAP! (WRONG ANSWER!)
-      console.log('❌ WRONG!');
       setShowFeedback('wrong');
 
       setTimeout(() => {

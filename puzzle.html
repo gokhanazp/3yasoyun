@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Puzzle Ustası</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #A5F3FC; /* Cyan-200 */
+            font-family: 'Bubblegum Sans', cursive;
+            overflow: hidden;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .ui-panel {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+        }
+        .interactive { pointer-events: auto; }
+        
+        /* Animasyonlar */
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            80% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+        .pop-in { animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        
+        .btn-shadow {
+            box-shadow: 0 6px 0 rgba(0,0,0,0.2);
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+        .btn-shadow:active {
+            transform: translateY(6px);
+            box-shadow: 0 0 0 rgba(0,0,0,0.2);
+        }
+
+        #confettiCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Arka Plan Deseni -->
+    <div class="absolute inset-0 opacity-20 pointer-events-none" style="background-image: radial-gradient(#0891b2 2px, transparent 2px); background-size: 30px 30px;"></div>
+
+    <!-- Oyun Alanı -->
+    <canvas id="puzzleCanvas" class="block mx-auto"></canvas>
+    <canvas id="confettiCanvas"></canvas>
+
+    <!-- MENÜ EKRANI -->
+    <div id="menuScreen" class="ui-panel bg-white/80 backdrop-blur-md interactive flex-col gap-6">
+        <h1 class="text-6xl text-cyan-600 drop-shadow-lg mb-4 animate-bounce">PUZZLE USTASI</h1>
+        
+        <div class="grid grid-cols-2 gap-4 w-full max-w-md px-6">
+            <!-- Resim Seçimi (Basit Örnekler) -->
+            <div onclick="Game.selectImage('farm')" class="btn-shadow cursor-pointer bg-green-400 p-4 rounded-2xl border-4 border-green-600 flex flex-col items-center hover:bg-green-300">
+                <span class="text-5xl">🐮</span>
+                <span class="text-white text-2xl mt-2">Çiftlik</span>
+            </div>
+            <div onclick="Game.selectImage('space')" class="btn-shadow cursor-pointer bg-indigo-400 p-4 rounded-2xl border-4 border-indigo-600 flex flex-col items-center hover:bg-indigo-300">
+                <span class="text-5xl">🚀</span>
+                <span class="text-white text-2xl mt-2">Uzay</span>
+            </div>
+             <div onclick="Game.selectImage('sea')" class="btn-shadow cursor-pointer bg-blue-400 p-4 rounded-2xl border-4 border-blue-600 flex flex-col items-center hover:bg-blue-300">
+                <span class="text-5xl">🐳</span>
+                <span class="text-white text-2xl mt-2">Deniz</span>
+            </div>
+             <div onclick="Game.selectImage('jungle')" class="btn-shadow cursor-pointer bg-yellow-400 p-4 rounded-2xl border-4 border-yellow-600 flex flex-col items-center hover:bg-yellow-300">
+                <span class="text-5xl">🦁</span>
+                <span class="text-white text-2xl mt-2">Orman</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ZORLUK SEÇİM EKRANI -->
+    <div id="difficultyScreen" class="ui-panel hidden bg-white/80 backdrop-blur-md interactive flex-col gap-6">
+        <h2 class="text-4xl text-purple-600 mb-4">Kaç Parça Olsun?</h2>
+        <div class="flex flex-col gap-4 w-64">
+            <button onclick="Game.startGame(2, 2)" class="btn-shadow bg-green-400 text-white text-2xl py-4 rounded-xl border-b-4 border-green-600">Kolay (4 Parça)</button>
+            <button onclick="Game.startGame(3, 3)" class="btn-shadow bg-yellow-400 text-white text-2xl py-4 rounded-xl border-b-4 border-yellow-600">Orta (9 Parça)</button>
+            <button onclick="Game.startGame(4, 4)" class="btn-shadow bg-red-400 text-white text-2xl py-4 rounded-xl border-b-4 border-red-600">Zor (16 Parça)</button>
+        </div>
+        <button onclick="Game.showScreen('menuScreen')" class="mt-6 text-gray-500 text-xl underline">Geri Dön</button>
+    </div>
+
+    <!-- OYUN İÇİ BUTONLARI -->
+    <div id="gameUI" class="ui-panel hidden !justify-between !items-start p-4 pointer-events-none">
+        <button onclick="Game.showScreen('menuScreen')" class="interactive btn-shadow bg-white w-14 h-14 rounded-full text-3xl flex items-center justify-center border-2 border-gray-200 shadow-lg">
+            🏠
+        </button>
+        <div class="bg-white/90 px-6 py-2 rounded-full text-2xl text-cyan-600 font-bold shadow-lg border-2 border-cyan-200">
+            <span id="scoreText">0</span> / <span id="totalText">0</span>
+        </div>
+    </div>
+
+    <!-- TAMAMLANDI EKRANI -->
+    <div id="winScreen" class="ui-panel hidden flex-col bg-black/50 backdrop-blur-sm interactive">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl text-center pop-in border-4 border-yellow-400 max-w-sm mx-4">
+            <div class="text-6xl mb-4">🎉</div>
+            <h2 class="text-4xl text-orange-500 mb-2">HARİKA!</h2>
+            <p class="text-gray-600 text-xl mb-6">Puzzle'ı tamamladın!</p>
+            <button onclick="Game.showScreen('menuScreen')" class="btn-shadow bg-blue-500 text-white text-2xl py-3 px-8 rounded-xl border-b-4 border-blue-700 w-full">
+                Yeni Oyun
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- GÖRSEL OLUŞTURUCU (Dinamik Resimler) ---
+        // Gerçek bir app'te burası assets klasöründen .png yükler. 
+        // Burada canvas üzerine çizim yaparak dinamik resim üretiyoruz.
+        const ImageGen = {
+            createImage: function(type, width, height) {
+                const c = document.createElement('canvas');
+                c.width = width;
+                c.height = height;
+                const ctx = c.getContext('2d');
+
+                // Arka Plan
+                if (type === 'farm') {
+                    ctx.fillStyle = '#87CEEB'; ctx.fillRect(0, 0, width, height); // Gökyüzü
+                    ctx.fillStyle = '#90EE90'; ctx.fillRect(0, height*0.6, width, height*0.4); // Çimen
+                    // Güneş
+                    ctx.fillStyle = '#FFD700'; ctx.beginPath(); ctx.arc(width*0.1, height*0.1, width*0.08, 0, Math.PI*2); ctx.fill();
+                    // İnek (Basit)
+                    this.drawEmoji(ctx, '🐮', width/2, height*0.7, width*0.4);
+                    this.drawEmoji(ctx, '🚜', width*0.8, height*0.65, width*0.25);
+                } 
+                else if (type === 'space') {
+                    ctx.fillStyle = '#0B1026'; ctx.fillRect(0, 0, width, height);
+                    // Yıldızlar
+                    for(let i=0; i<20; i++) {
+                        ctx.fillStyle = 'white';
+                        ctx.beginPath();
+                        ctx.arc(Math.random()*width, Math.random()*height, Math.random()*2, 0, Math.PI*2);
+                        ctx.fill();
+                    }
+                    this.drawEmoji(ctx, '🚀', width/2, height/2, width*0.4);
+                    this.drawEmoji(ctx, '🪐', width*0.8, height*0.2, width*0.25);
+                    this.drawEmoji(ctx, '🌍', width*0.2, height*0.8, width*0.2);
+                }
+                else if (type === 'sea') {
+                    ctx.fillStyle = '#00BFFF'; ctx.fillRect(0, 0, width, height);
+                    // Dalgalar
+                    ctx.strokeStyle = '#1E90FF'; ctx.lineWidth = 5;
+                    for(let i=0; i<5; i++) {
+                        ctx.beginPath(); ctx.moveTo(0, height*0.2*i); 
+                        ctx.bezierCurveTo(width/2, height*0.2*i+50, width/2, height*0.2*i-50, width, height*0.2*i); 
+                        ctx.stroke();
+                    }
+                    this.drawEmoji(ctx, '🐳', width/2, height*0.6, width*0.4);
+                    this.drawEmoji(ctx, '🐠', width*0.8, height*0.3, width*0.15);
+                    this.drawEmoji(ctx, '🐙', width*0.2, height*0.8, width*0.2);
+                }
+                else if (type === 'jungle') {
+                    ctx.fillStyle = '#228B22'; ctx.fillRect(0, 0, width, height);
+                    // Ağaçlar
+                    this.drawEmoji(ctx, '🌴', width*0.1, height*0.4, width*0.3);
+                    this.drawEmoji(ctx, '🌴', width*0.9, height*0.4, width*0.3);
+                    this.drawEmoji(ctx, '🦁', width/2, height*0.7, width*0.4);
+                    this.drawEmoji(ctx, '🦜', width*0.5, height*0.2, width*0.2);
+                }
+
+                return c;
+            },
+            drawEmoji: function(ctx, emoji, x, y, size) {
+                ctx.font = `${size}px Arial`;
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText(emoji, x, y);
+            }
+        };
+
+        // --- PUZZLE PARÇA MANTIĞI ---
+        class Piece {
+            constructor(index, row, col, img, width, height, puzzleInfo) {
+                this.index = index;
+                this.row = row;
+                this.col = col;
+                this.img = img; // Tüm resim
+                this.w = width;
+                this.h = height;
+                
+                // Puzzle kesim bilgileri (Jigsaw şekli için)
+                this.puzzleInfo = puzzleInfo; // {cols, rows, tileW, tileH}
+
+                // Mevcut Konum (Rastgele başla)
+                this.x = Math.random() * (window.innerWidth - this.w);
+                this.y = Math.random() * (window.innerHeight - this.h);
+                
+                // Hedef Konum (Puzzle ortasında)
+                // Puzzle'ı ekranın ortasına yerleştirelim
+                const puzzleW = puzzleInfo.cols * puzzleInfo.tileW;
+                const puzzleH = puzzleInfo.rows * puzzleInfo.tileH;
+                const offsetX = (window.innerWidth - puzzleW) / 2;
+                const offsetY = (window.innerHeight - puzzleH) / 2;
+
+                this.targetX = offsetX + col * puzzleInfo.tileW;
+                this.targetY = offsetY + row * puzzleInfo.tileH;
+
+                this.isLocked = false;
+                this.isDragging = false;
+                
+                // Parçayı ekran dışına taşma kontrolü
+                if(this.x < 0) this.x = 0;
+                if(this.y < 0) this.y = 0;
+                if(this.x + this.w > window.innerWidth) this.x = window.innerWidth - this.w;
+                if(this.y + this.h > window.innerHeight) this.y = window.innerHeight - this.h;
+            }
+
+            // Jigsaw şeklini çiz (Maskeleme)
+            drawPath(ctx, x, y, isStroke = false) {
+                const w = this.puzzleInfo.tileW;
+                const h = this.puzzleInfo.tileH;
+                
+                // Basit kareler yerine girintili çıkıntılı yol çizimi (Basitleştirilmiş Jigsaw)
+                // Gerçek uygulamada Bezier eğrileri kullanılır, burada görsel anlaşılırlık için hafif kavisli yapıyoruz.
+                // Çocuklar için çok karmaşık şekiller bazen kafa karıştırıcı olabilir, bu yüzden
+                // "Tab-and-Blank" (Kulakçık ve Boşluk) mantığını simüle edelim.
+                
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+
+                // Üst Kenar
+                if (this.row > 0) {
+                    // Üstte kulakçık varsa
+                    ctx.lineTo(x + w * 0.35, y);
+                    ctx.bezierCurveTo(x + w * 0.35, y - h * 0.2, x + w * 0.65, y - h * 0.2, x + w * 0.65, y);
+                    ctx.lineTo(x + w, y);
+                } else {
+                    ctx.lineTo(x + w, y);
+                }
+
+                // Sağ Kenar
+                if (this.col < this.puzzleInfo.cols - 1) {
+                    ctx.lineTo(x + w, y + h * 0.35);
+                    ctx.bezierCurveTo(x + w + w * 0.2, y + h * 0.35, x + w + w * 0.2, y + h * 0.65, x + w, y + h * 0.65);
+                    ctx.lineTo(x + w, y + h);
+                } else {
+                    ctx.lineTo(x + w, y + h);
+                }
+
+                // Alt Kenar
+                if (this.row < this.puzzleInfo.rows - 1) {
+                    ctx.lineTo(x + w * 0.65, y + h);
+                    ctx.bezierCurveTo(x + w * 0.65, y + h + h * 0.2, x + w * 0.35, y + h + h * 0.2, x + w * 0.35, y + h);
+                    ctx.lineTo(x, y + h);
+                } else {
+                    ctx.lineTo(x, y + h);
+                }
+
+                // Sol Kenar
+                if (this.col > 0) {
+                    ctx.lineTo(x, y + h * 0.65);
+                    ctx.bezierCurveTo(x - w * 0.2, y + h * 0.65, x - w * 0.2, y + h * 0.35, x, y + h * 0.35);
+                    ctx.lineTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+                
+                ctx.closePath();
+            }
+
+            draw(ctx) {
+                ctx.save();
+                
+                // 1. Yolu Çiz (Clip maskesi için)
+                this.drawPath(ctx, this.x, this.y);
+                ctx.clip();
+
+                // 2. Resmi Çiz
+                // Kaynak resimden doğru parçayı alıp, ekrandaki x,y'ye çiziyoruz
+                // Ancak Jigsaw kulakçıkları taşma yaptığı için biraz geniş almalıyız.
+                // Basitleştirmek için tüm resmi ofsetleyerek çiziyoruz.
+                
+                const sourceX = this.col * this.puzzleInfo.tileW;
+                const sourceY = this.row * this.puzzleInfo.tileH;
+                
+                ctx.drawImage(
+                    this.img, 
+                    sourceX - (this.col > 0 ? this.puzzleInfo.tileW*0.2 : 0), // Source X (Kulak payı)
+                    sourceY - (this.row > 0 ? this.puzzleInfo.tileH*0.2 : 0), // Source Y
+                    this.w + (this.puzzleInfo.tileW*0.4), // Source W
+                    this.h + (this.puzzleInfo.tileH*0.4), // Source H
+                    this.x - (this.col > 0 ? this.puzzleInfo.tileW*0.2 : 0), // Dest X
+                    this.y - (this.row > 0 ? this.puzzleInfo.tileH*0.2 : 0), // Dest Y
+                    this.w + (this.puzzleInfo.tileW*0.4), // Dest W
+                    this.h + (this.puzzleInfo.tileH*0.4)  // Dest H
+                );
+
+                ctx.restore();
+
+                // 3. Kenar Çizgisi (Stroke)
+                ctx.save();
+                this.drawPath(ctx, this.x, this.y);
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = this.isLocked ? 'rgba(255,255,255,0.5)' : 'white';
+                ctx.stroke();
+                
+                // Gölge (Eğer kilitli değilse havada gibi dursun)
+                if (!this.isLocked) {
+                    ctx.shadowColor = "rgba(0,0,0,0.3)";
+                    ctx.shadowBlur = 10;
+                    ctx.shadowOffsetY = 5;
+                    ctx.stroke();
+                }
+                ctx.restore();
+            }
+        }
+
+        // --- OYUN MOTORU ---
+        const Game = {
+            canvas: document.getElementById('puzzleCanvas'),
+            ctx: null,
+            pieces: [],
+            selectedImage: null,
+            cols: 2,
+            rows: 2,
+            selectedType: null,
+            activePiece: null,
+            offset: {x:0, y:0},
+            
+            init: function() {
+                this.ctx = this.canvas.getContext('2d');
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
+
+                // Event Listeners
+                const events = {
+                    start: ['mousedown', 'touchstart'],
+                    move: ['mousemove', 'touchmove'],
+                    end: ['mouseup', 'touchend']
+                };
+
+                events.start.forEach(e => this.canvas.addEventListener(e, (evt) => this.handleStart(evt), {passive: false}));
+                events.move.forEach(e => this.canvas.addEventListener(e, (evt) => this.handleMove(evt), {passive: false}));
+                events.end.forEach(e => this.canvas.addEventListener(e, (evt) => this.handleEnd(evt)));
+
+                this.loop();
+            },
+
+            resize: function() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+                // Yeniden boyutlanınca parçalar kaybolmasın diye basit bir reset (gerçek app'te daha akıllı olmalı)
+            },
+
+            showScreen: function(id) {
+                document.querySelectorAll('.ui-panel').forEach(el => el.classList.add('hidden'));
+                if(id) document.getElementById(id).classList.remove('hidden');
+                if(id === 'gameUI') document.getElementById(id).classList.add('flex');
+            },
+
+            selectImage: function(type) {
+                this.selectedType = type;
+                this.showScreen('difficultyScreen');
+            },
+
+            startGame: function(c, r) {
+                this.cols = c;
+                this.rows = r;
+                this.pieces = [];
+                
+                // Puzzle Boyutu Hesapla (Ekranın %70'i)
+                const puzzleSize = Math.min(this.canvas.width, this.canvas.height) * 0.7;
+                const tileW = puzzleSize / this.cols;
+                const tileH = puzzleSize / this.rows;
+
+                // Dinamik Resim Oluştur
+                this.selectedImage = ImageGen.createImage(this.selectedType, puzzleSize, puzzleSize);
+
+                // Parçaları Oluştur
+                for(let row=0; row<this.rows; row++) {
+                    for(let col=0; col<this.cols; col++) {
+                        const p = new Piece(
+                            row * this.cols + col,
+                            row, col,
+                            this.selectedImage,
+                            tileW, tileH,
+                            {cols: this.cols, rows: this.rows, tileW, tileH}
+                        );
+                        this.pieces.push(p);
+                    }
+                }
+
+                // Karıştır (Ekranın kenarlarına dağıt)
+                this.pieces.forEach(p => {
+                    if(Math.random() > 0.5) {
+                        p.x = Math.random() * (this.canvas.width * 0.2);
+                    } else {
+                        p.x = this.canvas.width - (Math.random() * (this.canvas.width * 0.2)) - p.w;
+                    }
+                    p.y = Math.random() * (this.canvas.height - p.h);
+                });
+
+                document.getElementById('totalText').innerText = this.pieces.length;
+                document.getElementById('scoreText').innerText = "0";
+                this.showScreen('gameUI');
+            },
+
+            // --- GİRİŞ YÖNETİMİ ---
+            getPos: function(evt) {
+                if (evt.touches) {
+                    return {x: evt.touches[0].clientX, y: evt.touches[0].clientY};
+                }
+                return {x: evt.clientX, y: evt.clientY};
+            },
+
+            handleStart: function(evt) {
+                evt.preventDefault();
+                const pos = this.getPos(evt);
+                
+                // Sondan başa tara (en üstteki parça)
+                for(let i = this.pieces.length-1; i>=0; i--) {
+                    const p = this.pieces[i];
+                    if(p.isLocked) continue;
+
+                    if(pos.x > p.x && pos.x < p.x + p.w && pos.y > p.y && pos.y < p.y + p.h) {
+                        this.activePiece = p;
+                        this.activePiece.isDragging = true;
+                        this.offset.x = pos.x - p.x;
+                        this.offset.y = pos.y - p.y;
+                        
+                        // Seçilen parçayı listenin en sonuna at (render sırası için üste çıkar)
+                        this.pieces.splice(i, 1);
+                        this.pieces.push(p);
+                        
+                        // Pop sesi (Sentezlenmiş)
+                        this.playSound(300, 'square', 0.1);
+                        break;
+                    }
+                }
+            },
+
+            handleMove: function(evt) {
+                evt.preventDefault();
+                if(this.activePiece) {
+                    const pos = this.getPos(evt);
+                    this.activePiece.x = pos.x - this.offset.x;
+                    this.activePiece.y = pos.y - this.offset.y;
+                }
+            },
+
+            handleEnd: function(evt) {
+                if(this.activePiece) {
+                    const p = this.activePiece;
+                    const dist = Math.hypot(p.x - p.targetX, p.y - p.targetY);
+                    
+                    // SNAP! (Manyetik alan 50px)
+                    if(dist < 50) {
+                        p.x = p.targetX;
+                        p.y = p.targetY;
+                        p.isLocked = true;
+                        this.playSound(600, 'sine', 0.15); // Snap sesi
+                        
+                        // Parçacık efekti
+                        Confetti.spawn(p.x + p.w/2, p.y + p.h/2, 10);
+                        
+                        this.checkWin();
+                    } else {
+                        this.playSound(150, 'sawtooth', 0.1); // Bırakma sesi
+                    }
+                    
+                    p.isDragging = false;
+                    this.activePiece = null;
+                }
+            },
+
+            checkWin: function() {
+                const lockedCount = this.pieces.filter(p => p.isLocked).length;
+                document.getElementById('scoreText').innerText = lockedCount;
+
+                if(lockedCount === this.pieces.length) {
+                    setTimeout(() => {
+                        this.playSound(800, 'sine', 0.5); // Zafer
+                        Confetti.spawn(window.innerWidth/2, window.innerHeight/2, 100);
+                        document.getElementById('winScreen').classList.remove('hidden');
+                        document.getElementById('winScreen').classList.add('flex');
+                    }, 500);
+                }
+            },
+
+            playSound: function(freq, type, dur) {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, ctx.currentTime);
+                gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + dur);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + dur);
+            },
+
+            loop: function() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+                // Ghost Image (İpucu - Silik arka plan)
+                if(this.selectedImage && this.pieces.length > 0) {
+                    const pInfo = this.pieces[0].puzzleInfo;
+                    const puzzleW = pInfo.cols * pInfo.tileW;
+                    const puzzleH = pInfo.rows * pInfo.tileH;
+                    const offsetX = (this.canvas.width - puzzleW) / 2;
+                    const offsetY = (this.canvas.height - puzzleH) / 2;
+                    
+                    this.ctx.globalAlpha = 0.2;
+                    this.ctx.drawImage(this.selectedImage, offsetX, offsetY, puzzleW, puzzleH);
+                    this.ctx.globalAlpha = 1.0;
+                    
+                    // Çerçeve
+                    this.ctx.strokeStyle = 'rgba(0,0,0,0.1)';
+                    this.ctx.lineWidth = 2;
+                    this.ctx.strokeRect(offsetX, offsetY, puzzleW, puzzleH);
+                }
+
+                // Parçaları Çiz
+                // Önce kilitlileri çiz (altta kalsın), sonra hareketlileri
+                // Zaten array'e kilitlendikçe sırası değişmiyor ama logic olarak:
+                this.pieces.forEach(p => p.draw(this.ctx));
+
+                Confetti.updateAndDraw();
+                requestAnimationFrame(() => this.loop());
+            }
+        };
+
+        // --- KONFETİ EFEKTİ ---
+        const Confetti = {
+            canvas: document.getElementById('confettiCanvas'),
+            ctx: document.getElementById('confettiCanvas').getContext('2d'),
+            particles: [],
+            
+            spawn: function(x, y, count) {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+                const colors = ['#FF0', '#F00', '#0F0', '#00F', '#F0F'];
+                
+                for(let i=0; i<count; i++) {
+                    this.particles.push({
+                        x: x, y: y,
+                        vx: (Math.random()-0.5) * 15,
+                        vy: (Math.random()-1) * 15,
+                        color: colors[Math.floor(Math.random()*colors.length)],
+                        size: Math.random() * 8 + 4,
+                        life: 1.0
+                    });
+                }
+            },
+            
+            updateAndDraw: function() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                for(let i=this.particles.length-1; i>=0; i--) {
+                    let p = this.particles[i];
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.5; // Yerçekimi
+                    p.life -= 0.02;
+                    
+                    this.ctx.globalAlpha = p.life;
+                    this.ctx.fillStyle = p.color;
+                    this.ctx.fillRect(p.x, p.y, p.size, p.size);
+                    
+                    if(p.life <= 0) this.particles.splice(i, 1);
+                }
+                this.ctx.globalAlpha = 1.0;
+            }
+        };
+
+        window.onload = () => Game.init();
+
+    </script>
+</body>
+</html>

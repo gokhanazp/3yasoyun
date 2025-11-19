@@ -57,7 +57,7 @@ export const GAMES: GameItem[] = [
     title: 'Boyama',
     description: 'Resimleri boya ve eğlen!',
     icon: '🖍️',
-    color: '#FF6B9D',
+    color: '#FFB74D', // Turuncu (Orange)
     screen: 'Coloring',
   },
 ];
