@@ -8,6 +8,7 @@
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "description": "3 yaş çocuklar için eğitici ve eğlenceli oyunlar. Renkler, sayılar, şekiller, hayvanlar ve daha fazlasını öğrenin!",
+    "privacyPolicyUrl": "https://gokhanazp.github.io/3yasoyun/privacy-policy.html",
     "splash": {
       "image": "./assets/logo.png",
       "resizeMode": "contain",

@@ -1,29 +1,28 @@
-# 🎈 0-3 Yaş Eğitici Oyunlar
+# 🎈 3 Yaş Oyunları - Eğitici Çocuk Oyunları
 
-0-3 yaş arası çocuklar için geliştirilmiş eğitici mobil oyun uygulaması.
+3 yaş ve üzeri çocuklar için tasarlanmış, eğitici ve eğlenceli mobil oyun uygulaması.
 
 ## 📱 Özellikler
 
-### Oyunlar
-1. **🎨 Renkler** - Renk öğrenme oyunu
-   - 6 temel renk (Kırmızı, Mavi, Sarı, Yeşil, Turuncu, Mor)
-   - Dokunmatik etkileşim
-   - Animasyonlu geri bildirim
+### 🎮 7 Farklı Oyun
 
-2. **🐶 Hayvan Sesleri** - Hayvan tanıma oyunu
-   - 8 farklı hayvan
-   - Görsel ve işitsel öğrenme
-   - Büyük, kolay tıklanabilir kartlar
+1. **🎨 Renkler** - 8 farklı rengi öğrenin
+2. **🐶 Hayvan Sesleri** - Hayvanları tanıyın ve seslerini öğrenin
+3. **⭐ Şekiller** - Temel geometrik şekilleri eşleştirin
+4. **🔢 Sayılar** - 1'den 10'a kadar sayıları öğrenin
+5. **🍎 Meyveler** - Meyveleri tanıyın ve isimlerini öğrenin
+6. **🎈 Balon Patlatma** - Renkleri eşleştirerek balon patlatın
+7. **🖍️ Boyama** - Hayvanları boyayın
 
-3. **⭐ Şekiller** - Şekil eşleştirme oyunu
-   - 4 temel şekil (Daire, Kare, Üçgen, Yıldız)
-   - Renkli ve eğlenceli tasarım
-   - İnteraktif animasyonlar
+### ✨ Özellikler
 
-4. **🔢 Sayılar** - Sayı öğrenme oyunu
-   - 1'den 10'a kadar sayılar
-   - Türkçe sayı isimleri
-   - Görsel sayı gösterimi
+- ✅ Tamamen ücretsiz
+- ✅ Reklamsız
+- ✅ Çevrimdışı çalışır
+- ✅ Türkçe sesli anlatım (expo-speech)
+- ✅ 3 yaş çocuklar için optimize edilmiş
+- ✅ Güvenli ve eğitici içerik
+- ✅ COPPA uyumlu
 
 ## 🎯 Gelişimsel Hedefler
 
