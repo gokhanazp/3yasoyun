@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "3 Yaş Oyunları",
-    "slug": "3yasoyun",
+    "slug": "o3-yas-oyun",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -30,7 +30,9 @@
       },
       "package": "com.yasoyun.egitici",
       "permissions": [
-        "INTERNET"
+        "INTERNET",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS"
       ],
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
@@ -44,8 +46,9 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "your-project-id-here"
+        "projectId": "99333eef-61bb-4497-8ee3-88698475ea16"
       }
-    }
+    },
+    "owner": "gokhanazp"
   }
 }
